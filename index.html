@@ -1,0 +1,1018 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umsizi — Find Traditional Healers, Stock Your Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --soil:#1C1208;
+    --bone:#F2E8D5;
+    --ochre:#A8431E;
+    --ochre-dark:#7E3115;
+    --leaf:#5C6B3F;
+    --grass:#D4A24C;
+    --paper:#FAFAF7;
+    --ink:#2A1E13;
+    --ink-soft:#6B5D4D;
+    --line:#E3D8C2;
+    --card:#FFFFFF;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(28,18,8,0.04), 0 8px 24px rgba(28,18,8,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--soil);
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--grass); color:var(--soil);}
+  :focus-visible{outline:2px solid var(--ochre); outline-offset:2px;}
+ 
+  /* ---------- layout shell ---------- */
+  .app{min-height:100vh; display:flex; flex-direction:column;}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--line);
+    background:var(--paper); position:sticky; top:0; z-index:50;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:21px; color:var(--soil);}
+  .brand .mark{
+    width:30px;height:30px;border-radius:7px;background:var(--ochre);
+    display:flex;align-items:center;justify-content:center;color:var(--bone);
+    font-size:15px; font-weight:700; flex-shrink:0;
+  }
+  .nav-tabs{display:flex; gap:4px; background:var(--bone); padding:4px; border-radius:999px;}
+  .nav-tab{
+    padding:9px 18px; border-radius:999px; border:none; background:transparent;
+    font-size:14px; font-weight:600; color:var(--ink-soft); transition:.15s;
+  }
+  .nav-tab.active{background:var(--soil); color:var(--bone);}
+  .nav-tab:hover:not(.active){color:var(--soil);}
+  .top-actions{display:flex; gap:10px; align-items:center;}
+  .btn{
+    border-radius:999px; border:1px solid var(--line); background:var(--card);
+    padding:10px 18px; font-size:14px; font-weight:600; color:var(--ink); transition:.15s;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{border-color:var(--ochre); color:var(--ochre-dark);}
+  .btn-primary{background:var(--ochre); border-color:var(--ochre); color:#fff;}
+  .btn-primary:hover{background:var(--ochre-dark); border-color:var(--ochre-dark); color:#fff;}
+  .btn-dark{background:var(--soil); border-color:var(--soil); color:var(--bone);}
+  .btn-dark:hover{background:#000; border-color:#000; color:var(--bone);}
+  .btn-ghost{background:transparent; border-color:transparent;}
+  .btn-ghost:hover{background:var(--bone); color:var(--soil);}
+  .btn-sm{padding:7px 14px; font-size:13px;}
+  .btn-block{width:100%; justify-content:center;}
+ 
+  .screen{display:none; flex:1;}
+  .screen.active{display:block;}
+ 
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+ 
+  /* ---------- HOME / DIRECTORY HERO ---------- */
+  .hero{
+    background:var(--soil); color:var(--bone); padding:64px 0 0; position:relative; overflow:hidden;
+  }
+  .hero .wrap{padding-bottom:48px; position:relative; z-index:2;}
+  .hero-eyebrow{
+    font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--grass); margin-bottom:14px; display:flex; align-items:center; gap:8px;
+  }
+  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--grass);}
+  .hero h1{
+    font-size:50px; line-height:1.04; color:var(--bone); margin:0 0 18px; max-width:680px;
+  }
+  .hero h1 em{color:var(--grass); font-style:normal;}
+  .hero p.lead{font-size:17px; line-height:1.6; color:#D9CDB8; max-width:540px; margin:0 0 32px;}
+ 
+  .search-panel{
+    background:var(--bone); border-radius:14px; padding:20px; display:flex; gap:10px;
+    box-shadow:var(--shadow); max-width:760px;
+  }
+  .search-field{
+    flex:1; display:flex; align-items:center; gap:10px; background:var(--card);
+    border-radius:9px; padding:0 14px; border:1px solid var(--line);
+  }
+  .search-field svg{flex-shrink:0; opacity:.5;}
+  .search-field input, .search-field select{
+    border:none; background:transparent; padding:13px 0; font-size:14px; font-family:inherit;
+    width:100%; color:var(--ink); outline:none;
+  }
+  .hero-stats{display:flex; gap:36px; margin-top:36px; flex-wrap:wrap;}
+  .hero-stat .num{font-family:'Fraunces',serif; font-size:28px; color:var(--bone); font-weight:600;}
+  .hero-stat .lab{font-size:12.5px; color:#B6A88E; margin-top:2px;}
+ 
+  .hero-art{
+    position:absolute; right:-60px; top:0; bottom:0; width:480px; z-index:1; opacity:.9;
+  }
+ 
+  /* ---------- DIRECTORY FILTERS + GRID ---------- */
+  .directory-section{padding:42px 0 80px;}
+  .filter-row{
+    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; align-items:center;
+  }
+  .chip{
+    border:1px solid var(--line); background:var(--card); padding:8px 16px; border-radius:999px;
+    font-size:13.5px; font-weight:600; color:var(--ink-soft); transition:.15s;
+  }
+  .chip.active{background:var(--leaf); border-color:var(--leaf); color:#fff;}
+  .chip:hover:not(.active){border-color:var(--leaf); color:var(--leaf);}
+  .result-count{font-size:13.5px; color:var(--ink-soft); margin-left:auto;}
+ 
+  .directory-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
+  }
+  .healer-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; transition:.18s; cursor:pointer; display:flex; flex-direction:column;
+  }
+  .healer-card:hover{border-color:var(--ochre); transform:translateY(-2px); box-shadow:var(--shadow);}
+  .healer-photo{
+    height:150px; background:linear-gradient(135deg,var(--leaf),var(--soil));
+    position:relative; display:flex; align-items:flex-end; padding:14px;
+  }
+  .healer-photo .initials{
+    width:54px;height:54px;border-radius:50%;background:var(--bone);color:var(--soil);
+    display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;
+    font-weight:600; font-size:19px; border:3px solid var(--card);
+  }
+  .verified-badge{
+    position:absolute; top:12px; right:12px; background:rgba(250,250,247,.95); color:var(--leaf);
+    font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; display:flex; align-items:center; gap:4px;
+  }
+  .healer-info{padding:16px 16px 18px; flex:1; display:flex; flex-direction:column;}
+  .healer-info h3{font-size:17px; margin:0 0 3px;}
+  .healer-region{font-size:13px; color:var(--ink-soft); margin-bottom:10px; display:flex; align-items:center; gap:5px;}
+  .specialty-tags{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .tag{font-size:11.5px; font-weight:600; background:var(--bone); color:var(--soil); padding:3px 9px; border-radius:6px;}
+  .healer-meta{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:10px; border-top:1px solid var(--line);}
+  .rating{font-size:13px; font-weight:600; color:var(--soil); display:flex; align-items:center; gap:4px;}
+  .since{font-size:12px; color:var(--ink-soft);}
+ 
+  /* ---------- PROFILE / STOREFRONT ---------- */
+  .profile-header{background:linear-gradient(135deg,var(--leaf) 0%, var(--soil) 100%); padding:40px 0 0;}
+  .profile-top{display:flex; gap:24px; align-items:flex-end; padding-bottom:28px;}
+  .profile-avatar{
+    width:96px;height:96px;border-radius:18px;background:var(--bone); color:var(--soil);
+    display:flex;align-items:center;justify-content:center; font-family:'Fraunces',serif;
+    font-size:32px; font-weight:600; border:4px solid var(--paper); flex-shrink:0;
+  }
+  .profile-titles h1{color:#fff; font-size:30px; margin:0 0 4px;}
+  .profile-titles .ploc{color:#D9CDB8; font-size:14px; display:flex; gap:14px; align-items:center;}
+  .profile-tabs{display:flex; gap:28px; padding-top:6px;}
+  .ptab{padding:14px 2px; font-size:14px; font-weight:600; color:#D9CDB8; border-bottom:2px solid transparent;}
+  .ptab.active{color:#fff; border-color:var(--grass);}
+ 
+  .profile-body{padding:40px 0 80px;}
+  .profile-layout{display:grid; grid-template-columns:1fr 320px; gap:36px;}
+  .pcard{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-bottom:20px;}
+  .pcard h3{font-size:16px; margin:0 0 14px;}
+  .pcard p{font-size:14.5px; line-height:1.65; color:var(--ink-soft); margin:0;}
+ 
+  .service-row{display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--line);}
+  .service-row:last-child{border-bottom:none;}
+  .service-row .sname{font-weight:600; font-size:14.5px; margin-bottom:3px;}
+  .service-row .sdesc{font-size:13px; color:var(--ink-soft);}
+  .service-price{font-family:'Fraunces',serif; font-weight:600; font-size:16px; white-space:nowrap; margin-left:16px;}
+ 
+  .product-grid-small{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .product-card-sm{border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .product-card-sm .pimg{height:90px; background:var(--bone);}
+  .product-card-sm .pinfo{padding:10px;}
+  .product-card-sm .pname{font-size:12.5px; font-weight:600;}
+  .product-card-sm .pprice{font-size:13px; color:var(--ochre-dark); font-weight:700; margin-top:2px;}
+ 
+  .sidebar-cta{background:var(--soil); color:var(--bone); border-radius:var(--radius); padding:22px;}
+  .sidebar-cta h4{font-family:'Fraunces',serif; font-size:17px; margin:0 0 6px; color:#fff;}
+  .sidebar-cta p{font-size:13px; color:#C9BCA4; margin:0 0 16px; line-height:1.5;}
+ 
+  .info-list{list-style:none; margin:0; padding:0; font-size:13.5px;}
+  .info-list li{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); color:var(--ink-soft);}
+  .info-list li:last-child{border-bottom:none;}
+  .info-list li span:last-child{color:var(--ink); font-weight:600;}
+ 
+  .review{padding:16px 0; border-bottom:1px solid var(--line);}
+  .review:last-child{border-bottom:none;}
+  .review-head{display:flex; justify-content:space-between; margin-bottom:5px;}
+  .review-name{font-weight:600; font-size:13.5px;}
+  .review-stars{color:var(--grass); font-size:12px;}
+  .review-text{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+ 
+  /* ---------- MARKETPLACE ---------- */
+  .marketplace-hero{background:var(--bone); padding:44px 0;}
+  .marketplace-hero h1{font-size:32px; margin:0 0 8px;}
+  .marketplace-hero p{font-size:15px; color:var(--ink-soft); max-width:560px; margin:0;}
+  .mp-section{padding:36px 0 80px;}
+  .mp-layout{display:grid; grid-template-columns:220px 1fr; gap:32px;}
+  .mp-filters{}
+  .mp-filter-group{margin-bottom:26px;}
+  .mp-filter-group h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:0 0 12px; font-weight:700;}
+  .mp-filter-item{display:flex; align-items:center; gap:9px; font-size:14px; padding:6px 0; color:var(--ink);}
+  .mp-filter-item input{accent-color:var(--ochre);}
+ 
+  .product-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+  .product-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; transition:.18s;}
+  .product-card:hover{border-color:var(--ochre); box-shadow:var(--shadow); transform:translateY(-2px);}
+  .product-card .pimg-lg{height:140px; background:linear-gradient(135deg,var(--grass),var(--ochre)); position:relative;}
+  .admin-tag{position:absolute; bottom:10px; left:10px; background:rgba(28,18,8,.8); color:var(--bone); font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:5px;}
+  .product-card .pinfo-lg{padding:14px;}
+  .product-card .pname-lg{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .product-card .pcat{font-size:11.5px; color:var(--ink-soft); margin-bottom:10px;}
+  .product-card .pfoot{display:flex; justify-content:space-between; align-items:center;}
+  .product-card .pprice-lg{font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:var(--ochre-dark);}
+  .add-btn{
+    width:32px;height:32px;border-radius:50%; background:var(--soil); color:var(--bone); border:none;
+    display:flex; align-items:center; justify-content:center; font-size:16px; transition:.15s;
+  }
+  .add-btn:hover{background:var(--ochre);}
+ 
+  /* ---------- ONBOARDING / REGISTER ---------- */
+  .onboard-shell{background:var(--paper); min-height:calc(100vh - 73px); padding:50px 0 80px;}
+  .onboard-wrap{max-width:680px; margin:0 auto;}
+  .progress-track{display:flex; align-items:center; gap:8px; margin-bottom:40px;}
+  .progress-step{flex:1; height:4px; border-radius:4px; background:var(--line);}
+  .progress-step.done{background:var(--ochre);}
+  .step-label{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-weight:600;}
+ 
+  .onboard-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:40px;}
+  .onboard-card h2{font-size:25px; margin:0 0 6px;}
+  .onboard-card .sub{font-size:14px; color:var(--ink-soft); margin:0 0 30px;}
+ 
+  .form-group{margin-bottom:18px;}
+  .form-group label{display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--soil);}
+  .form-group input, .form-group select, .form-group textarea{
+    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:8px;
+    font-size:14px; font-family:inherit; background:var(--paper); color:var(--ink);
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus{
+    outline:none; border-color:var(--ochre); background:#fff;
+  }
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .form-hint{font-size:12px; color:var(--ink-soft); margin-top:5px;}
+ 
+  .tag-select{display:flex; flex-wrap:wrap; gap:8px;}
+  .tag-option{border:1px solid var(--line); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; color:var(--ink-soft); background:var(--paper);}
+  .tag-option.selected{background:var(--leaf); border-color:var(--leaf); color:#fff;}
+ 
+  .plan-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px;}
+  .plan-card{border:2px solid var(--line); border-radius:12px; padding:20px; position:relative; cursor:pointer;}
+  .plan-card.selected{border-color:var(--ochre); background:#FBF2EC;}
+  .plan-card .ptag{position:absolute; top:-10px; right:16px; background:var(--grass); color:var(--soil); font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:999px;}
+  .plan-card h4{font-family:'Fraunces',serif; font-size:18px; margin:0 0 4px; color:var(--soil);}
+  .plan-price{font-size:24px; font-weight:700; color:var(--ochre-dark); margin-bottom:10px; font-family:'Fraunces',serif;}
+  .plan-price span{font-size:13px; color:var(--ink-soft); font-weight:500;}
+  .plan-feats{list-style:none; padding:0; margin:0; font-size:13px; color:var(--ink-soft);}
+  .plan-feats li{padding:4px 0; display:flex; gap:6px;}
+  .plan-feats li:before{content:"✓"; color:var(--leaf); font-weight:700;}
+ 
+  .onboard-nav{display:flex; justify-content:space-between; margin-top:28px;}
+ 
+  .success-box{text-align:center; padding:30px 0;}
+  .success-icon{width:64px;height:64px; background:var(--leaf); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:#fff; font-size:28px;}
+ 
+  /* ---------- DASHBOARD ---------- */
+  .dash-shell{display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - 73px);}
+  .dash-sidebar{background:var(--soil); color:var(--bone); padding:24px 16px;}
+  .dash-store-id{display:flex; gap:10px; align-items:center; padding:0 8px 22px; border-bottom:1px solid #3A2D1C; margin-bottom:18px;}
+  .dash-store-id .savatar{width:38px;height:38px;border-radius:8px;background:var(--grass); color:var(--soil); display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Fraunces',serif; flex-shrink:0;}
+  .dash-store-id .sname-d{font-size:13.5px; font-weight:600; color:#fff;}
+  .dash-store-id .splan{font-size:11.5px; color:var(--grass);}
+  .dash-link{
+    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:8px; font-size:14px;
+    color:#C9BCA4; font-weight:500; margin-bottom:2px; transition:.15s;
+  }
+  .dash-link.active{background:#3A2D1C; color:#fff;}
+  .dash-link:hover:not(.active){background:#2A2014; color:#fff;}
+  .dash-link svg{flex-shrink:0; opacity:.85;}
+ 
+  .dash-main{padding:32px 36px; background:var(--paper);}
+  .dash-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px;}
+  .dash-head h2{font-size:24px; margin:0 0 4px;}
+  .dash-head .dsub{font-size:13.5px; color:var(--ink-soft);}
+ 
+  .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;}
+  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px;}
+  .stat-card .slabel{font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between;}
+  .stat-card .sval{font-family:'Fraunces',serif; font-size:26px; font-weight:600; color:var(--soil);}
+  .stat-card .sdelta{font-size:12px; color:var(--leaf); font-weight:600; margin-top:4px;}
+ 
+  .dash-grid-2{display:grid; grid-template-columns:1.5fr 1fr; gap:20px;}
+  .dash-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px;}
+  .dash-card h3{font-size:15.5px; margin:0 0 16px; display:flex; justify-content:space-between; align-items:center;}
+ 
+  table.dtable{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.dtable th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); padding:0 0 10px; font-weight:700; border-bottom:1px solid var(--line);}
+  table.dtable td{padding:11px 0; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.dtable tr:last-child td{border-bottom:none;}
+  .status-pill{font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px;}
+  .status-paid{background:#E4EFD8; color:var(--leaf);}
+  .status-pending{background:#FBEBD9; color:#A6680E;}
+  .status-due{background:#FBE0DA; color:var(--ochre-dark);}
+ 
+  .subscription-banner{
+    background:linear-gradient(135deg,#FBF2EC,#F7E8DA); border:1px solid #EAD2BC; border-radius:10px;
+    padding:18px 22px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;
+  }
+  .subscription-banner .sb-text{font-size:13.5px; color:var(--ink-soft);}
+  .subscription-banner .sb-text strong{color:var(--soil);}
+ 
+  .listing-row{display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .listing-row:last-child{border-bottom:none;}
+  .listing-thumb{width:44px;height:44px;border-radius:7px;background:var(--bone); flex-shrink:0;}
+  .listing-name{font-weight:600; font-size:14px;}
+  .listing-meta{font-size:12px; color:var(--ink-soft);}
+  .listing-actions{margin-left:auto; display:flex; gap:8px;}
+ 
+  .icon-btn{width:30px; height:30px; border-radius:6px; border:1px solid var(--line); background:var(--paper); display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .icon-btn:hover{border-color:var(--ochre); color:var(--ochre);}
+ 
+  footer{background:var(--soil); color:#9C8C75; padding:40px 0; margin-top:auto;}
+  footer .wrap{display:flex; justify-content:space-between; align-items:center; font-size:13px;}
+  footer .fbrand{color:var(--bone); font-family:'Fraunces',serif; font-weight:600; font-size:16px;}
+ 
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(28,18,8,.55); z-index:200; display:none;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal-box{background:var(--card); border-radius:14px; max-width:420px; width:100%; padding:28px; text-align:center;}
+  .modal-box h3{margin:0 0 8px; font-size:19px;}
+  .modal-box p{font-size:13.5px; color:var(--ink-soft); margin:0 0 22px; line-height:1.55;}
+ 
+  @media (max-width: 900px){
+    .nav-tabs{display:none;}
+    .hero h1{font-size:34px;}
+    .hero-art{display:none;}
+    .directory-grid{grid-template-columns:1fr;}
+    .profile-layout{grid-template-columns:1fr;}
+    .product-grid{grid-template-columns:repeat(2,1fr);}
+    .mp-layout{grid-template-columns:1fr;}
+    .dash-shell{grid-template-columns:1fr;}
+    .dash-sidebar{display:none;}
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .dash-grid-2{grid-template-columns:1fr;}
+    .plan-grid{grid-template-columns:1fr;}
+    .form-row{grid-template-columns:1fr;}
+    .wrap{padding:0 18px;}
+  }
+</style>
+</head>
+<body>
+ 
+<div class="app">
+ 
+  <!-- ============ TOP NAV ============ -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">U</div>
+      Umsizi
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-screen="home">Directory</button>
+      <button class="nav-tab" data-screen="marketplace">Marketplace</button>
+      <button class="nav-tab" data-screen="dashboard">Healer dashboard</button>
+    </div>
+    <div class="top-actions">
+      <a class="btn btn-ghost btn-sm" onclick="goTo('login')">Log in</a>
+      <a class="btn btn-primary btn-sm" onclick="goTo('onboard')">Register as a healer</a>
+    </div>
+  </div>
+ 
+  <!-- ============ SCREEN: HOME / DIRECTORY ============ -->
+  <div class="screen active" id="screen-home">
+ 
+    <div class="hero">
+      <div class="wrap">
+        <div class="hero-eyebrow"><span class="dot"></span> Verified across all 9 provinces</div>
+        <h1>Find a healer who was <em>called</em> to this work — not just listed for it.</h1>
+        <p class="lead">Umsizi connects you with verified izangoma, izinyanga, and traditional birth attendants near you, and gives every healer a store to run their practice properly.</p>
+ 
+        <div class="search-panel">
+          <div class="search-field">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" placeholder="Search by name, specialty, or condition...">
+          </div>
+          <div class="search-field" style="flex:0 0 180px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <select>
+              <option>All provinces</option>
+              <option>Gauteng</option>
+              <option>KwaZulu-Natal</option>
+              <option>Eastern Cape</option>
+              <option>Western Cape</option>
+              <option>Limpopo</option>
+            </select>
+          </div>
+          <button class="btn btn-dark" style="padding:0 26px;">Search</button>
+        </div>
+ 
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">1,240+</div><div class="lab">Verified healers</div></div>
+          <div class="hero-stat"><div class="num">9</div><div class="lab">Provinces covered</div></div>
+          <div class="hero-stat"><div class="num">38,000+</div><div class="lab">Consultations booked</div></div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="directory-section">
+      <div class="wrap">
+        <div class="filter-row">
+          <button class="chip active">All specialties</button>
+          <button class="chip">Sangoma · Divination</button>
+          <button class="chip">Inyanga · Herbalist</button>
+          <button class="chip">Birth attendant</button>
+          <button class="chip">Bone setting</button>
+          <button class="chip">Spiritual cleansing</button>
+          <span class="result-count">1,240 healers found</span>
+        </div>
+ 
+        <div class="directory-grid" id="directory-grid"></div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ============ SCREEN: HEALER PROFILE / STOREFRONT ============ -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-header">
+      <div class="wrap">
+        <div class="profile-top">
+          <div class="profile-avatar">NM</div>
+          <div class="profile-titles">
+            <h1>Gogo Nomvula Mahlangu</h1>
+            <div class="ploc">
+              <span>📍 Soweto, Gauteng</span>
+              <span>•</span>
+              <span>Practicing since 2003</span>
+              <span>•</span>
+              <span style="color:var(--grass); font-weight:700;">✓ Verified healer</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-tabs">
+          <div class="ptab active">Overview</div>
+          <div class="ptab">Services</div>
+          <div class="ptab">Store</div>
+          <div class="ptab">Reviews (84)</div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="profile-body">
+      <div class="wrap">
+        <div class="profile-layout">
+          <div>
+            <div class="pcard">
+              <h3>About Gogo Nomvula</h3>
+              <p>Called to ukuthwasa in 2001 and trained under Gogo Zanele Khumalo in Bergville. Specialises in ancestral divination, isiNyanga herbal treatment, and guidance for first-time twasa candidates. Consultations are conducted in isiZulu and English.</p>
+            </div>
+ 
+            <div class="pcard">
+              <h3>Services offered</h3>
+              <div class="service-row">
+                <div><div class="sname">Initial divination consultation</div><div class="sdesc">Bones, ancestral reading · 45 minutes</div></div>
+                <div class="service-price">R450</div>
+              </div>
+              <div class="service-row">
+                <div><div class="sname">Herbal treatment course</div><div class="sdesc">Custom muthi prescription · 2 week course</div></div>
+                <div class="service-price">R680</div>
+              </div>
+              <div class="service-row">
+                <div><div class="sname">Home cleansing ritual</div><div class="sdesc">Travel included within Soweto · half day</div></div>
+                <div class="service-price">R1,200</div>
+              </div>
+              <div class="service-row">
+                <div><div class="sname">Twasa guidance session</div><div class="sdesc">For those answering the calling · 90 minutes</div></div>
+                <div class="service-price">R550</div>
+              </div>
+            </div>
+ 
+            <div class="pcard">
+              <h3>From Gogo Nomvula's store</h3>
+              <div class="product-grid-small">
+                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Imphepho bundle</div><div class="pprice">R85</div></div></div>
+                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Beaded isiphandla set</div><div class="pprice">R320</div></div></div>
+                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Umsamo cleansing oil</div><div class="pprice">R145</div></div></div>
+              </div>
+            </div>
+ 
+            <div class="pcard">
+              <h3>Recent reviews</h3>
+              <div class="review">
+                <div class="review-head"><span class="review-name">Thandeka N.</span><span class="review-stars">★★★★★</span></div>
+                <div class="review-text">Gogo Nomvula explained everything clearly before the ritual and made my mother feel comfortable. Worth the trip from Pretoria.</div>
+              </div>
+              <div class="review">
+                <div class="review-head"><span class="review-name">Sipho M.</span><span class="review-stars">★★★★★</span></div>
+                <div class="review-text">Booked through the site, got a confirmation immediately, and she was exactly on time. Very professional setup for a sangoma.</div>
+              </div>
+            </div>
+          </div>
+ 
+          <div>
+            <div class="sidebar-cta">
+              <h4>Book a consultation</h4>
+              <p>Gogo Nomvula usually replies within 2 hours. Booking holds your slot — payment happens at the consultation.</p>
+              <button class="btn btn-primary btn-block" onclick="openModal('book-modal')">Request a booking</button>
+            </div>
+            <div class="pcard" style="margin-top:16px;">
+              <h3>Practice details</h3>
+              <ul class="info-list">
+                <li><span>Languages</span><span>isiZulu, English</span></li>
+                <li><span>Years practicing</span><span>23 years</span></li>
+                <li><span>House calls</span><span>Yes, Soweto area</span></li>
+                <li><span>Registered with</span><span>THO Gauteng</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ============ SCREEN: MARKETPLACE (Admin-run equipment store) ============ -->
+  <div class="screen" id="screen-marketplace">
+    <div class="marketplace-hero">
+      <div class="wrap">
+        <h1>Equipment & supplies marketplace</h1>
+        <p>Sourced and fulfilled directly by Umsizi — beads, skins, herbs, and ritual tools for registered healers. Healer stores are listed separately on each profile.</p>
+      </div>
+    </div>
+    <div class="mp-section">
+      <div class="wrap">
+        <div class="mp-layout">
+          <div class="mp-filters">
+            <div class="mp-filter-group">
+              <h4>Category</h4>
+              <label class="mp-filter-item"><input type="checkbox" checked> Herbs & muthi</label>
+              <label class="mp-filter-item"><input type="checkbox"> Beadwork supplies</label>
+              <label class="mp-filter-item"><input type="checkbox"> Skins & regalia</label>
+              <label class="mp-filter-item"><input type="checkbox"> Divination tools</label>
+              <label class="mp-filter-item"><input type="checkbox"> Ritual items</label>
+            </div>
+            <div class="mp-filter-group">
+              <h4>Price</h4>
+              <label class="mp-filter-item"><input type="checkbox"> Under R100</label>
+              <label class="mp-filter-item"><input type="checkbox"> R100 – R500</label>
+              <label class="mp-filter-item"><input type="checkbox"> R500+</label>
+            </div>
+            <div class="mp-filter-group">
+              <h4>Availability</h4>
+              <label class="mp-filter-item"><input type="checkbox" checked> In stock only</label>
+            </div>
+          </div>
+ 
+          <div>
+            <div class="filter-row" style="margin-bottom:20px;">
+              <span class="result-count" style="margin-left:0;">312 items · fulfilled by Umsizi</span>
+            </div>
+            <div class="product-grid" id="marketplace-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ============ SCREEN: ONBOARDING ============ -->
+  <div class="screen" id="screen-onboard">
+    <div class="onboard-shell">
+      <div class="wrap">
+        <div class="onboard-wrap">
+ 
+          <!-- STEP 1 -->
+          <div class="onboard-step" id="ob-step-1">
+            <div class="step-label"><span>Step 1 of 4 · Your details</span><span>Practice info next</span></div>
+            <div class="progress-track">
+              <div class="progress-step done"></div><div class="progress-step"></div><div class="progress-step"></div><div class="progress-step"></div>
+            </div>
+            <div class="onboard-card">
+              <h2>Register your practice</h2>
+              <p class="sub">This creates your healer profile and your store. It takes about 5 minutes.</p>
+ 
+              <div class="form-group">
+                <label>Full name</label>
+                <input type="text" placeholder="e.g. Nomvula Mahlangu">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Email address</label>
+                  <input type="email" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                  <label>Phone number</label>
+                  <input type="tel" placeholder="082 000 0000">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Province</label>
+                  <select>
+                    <option>Gauteng</option><option>KwaZulu-Natal</option><option>Eastern Cape</option>
+                    <option>Western Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+                    <option>North West</option><option>Free State</option><option>Northern Cape</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Town / suburb</label>
+                  <input type="text" placeholder="e.g. Soweto">
+                </div>
+              </div>
+              <div class="onboard-nav">
+                <span></span>
+                <button class="btn btn-primary" onclick="obStep(2)">Continue</button>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- STEP 2 -->
+          <div class="onboard-step" id="ob-step-2" style="display:none;">
+            <div class="step-label"><span>Step 2 of 4 · Your practice</span><span>Plan next</span></div>
+            <div class="progress-track">
+              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step"></div><div class="progress-step"></div>
+            </div>
+            <div class="onboard-card">
+              <h2>Tell clients what you do</h2>
+              <p class="sub">This appears on your public directory profile.</p>
+ 
+              <div class="form-group">
+                <label>Specialties (select all that apply)</label>
+                <div class="tag-select">
+                  <span class="tag-option selected">Sangoma · Divination</span>
+                  <span class="tag-option">Inyanga · Herbalist</span>
+                  <span class="tag-option">Birth attendant</span>
+                  <span class="tag-option">Bone setting</span>
+                  <span class="tag-option">Spiritual cleansing</span>
+                  <span class="tag-option">Marriage counselling</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Years practicing</label>
+                <input type="number" placeholder="e.g. 12">
+              </div>
+              <div class="form-group">
+                <label>About your practice</label>
+                <textarea rows="4" placeholder="Share your training, your calling, and what clients can expect..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Proof of registration / training reference</label>
+                <input type="text" placeholder="Traditional Health Practitioner body or mentor reference">
+                <div class="form-hint">Our team manually verifies this before your profile goes live — it's how clients know you're listed in good faith.</div>
+              </div>
+              <div class="onboard-nav">
+                <button class="btn btn-ghost" onclick="obStep(1)">Back</button>
+                <button class="btn btn-primary" onclick="obStep(3)">Continue</button>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- STEP 3: PLAN / SUBSCRIPTION -->
+          <div class="onboard-step" id="ob-step-3" style="display:none;">
+            <div class="step-label"><span>Step 3 of 4 · Choose your plan</span><span>Payment next</span></div>
+            <div class="progress-track">
+              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step"></div>
+            </div>
+            <div class="onboard-card">
+              <h2>Choose your store plan</h2>
+              <p class="sub">A monthly fee keeps your storefront and directory listing live. Cancel anytime — your listing pauses, it isn't deleted.</p>
+ 
+              <div class="plan-grid">
+                <div class="plan-card" onclick="selectPlan(this)">
+                  <h4>Listed</h4>
+                  <div class="plan-price">R149<span>/mo</span></div>
+                  <ul class="plan-feats">
+                    <li>Directory profile</li>
+                    <li>Up to 6 services listed</li>
+                    <li>Client booking requests</li>
+                    <li>No store / product listings</li>
+                  </ul>
+                </div>
+                <div class="plan-card selected" onclick="selectPlan(this)">
+                  <span class="ptag">Most chosen</span>
+                  <h4>Store</h4>
+                  <div class="plan-price">R349<span>/mo</span></div>
+                  <ul class="plan-feats">
+                    <li>Everything in Listed</li>
+                    <li>Unlimited services</li>
+                    <li>Your own product store</li>
+                    <li>Priority placement in search</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="form-hint" style="margin-bottom:20px;">You can change or cancel your plan anytime from your dashboard.</div>
+ 
+              <div class="onboard-nav">
+                <button class="btn btn-ghost" onclick="obStep(2)">Back</button>
+                <button class="btn btn-primary" onclick="obStep(4)">Continue to payment</button>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- STEP 4: PAYMENT + CONFIRM -->
+          <div class="onboard-step" id="ob-step-4" style="display:none;">
+            <div class="step-label"><span>Step 4 of 4 · Payment</span><span>Almost done</span></div>
+            <div class="progress-track">
+              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div>
+            </div>
+            <div class="onboard-card">
+              <h2>Set up monthly billing</h2>
+              <p class="sub">You're subscribing to the <strong>Store</strong> plan at R349/month. First charge happens once your profile is verified.</p>
+ 
+              <div class="form-group">
+                <label>Card number</label>
+                <input type="text" placeholder="4000 0000 0000 0000">
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM / YY"></div>
+                <div class="form-group"><label>CVC</label><input type="text" placeholder="123"></div>
+              </div>
+              <div class="form-group">
+                <label>Billing name</label>
+                <input type="text" placeholder="As it appears on your card">
+              </div>
+              <div class="onboard-nav">
+                <button class="btn btn-ghost" onclick="obStep(3)">Back</button>
+                <button class="btn btn-primary" onclick="finishOnboard()">Submit for verification</button>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- SUCCESS -->
+          <div class="onboard-step" id="ob-step-success" style="display:none;">
+            <div class="onboard-card">
+              <div class="success-box">
+                <div class="success-icon">✓</div>
+                <h2>You're in the queue for verification</h2>
+                <p class="sub" style="margin-bottom:24px;">We'll review your registration reference within 1–2 business days. Your store is already set up — once verified, it goes live on the directory and your first month is billed.</p>
+                <button class="btn btn-dark" onclick="goTo('dashboard')">Go to your dashboard</button>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ============ SCREEN: HEALER DASHBOARD ============ -->
+  <div class="screen" id="screen-dashboard">
+    <div class="dash-shell">
+      <div class="dash-sidebar">
+        <div class="dash-store-id">
+          <div class="savatar">NM</div>
+          <div>
+            <div class="sname-d">Gogo Nomvula's Practice</div>
+            <div class="splan">Store plan · Active</div>
+          </div>
+        </div>
+        <div class="dash-link active" onclick="dashTab(this)">📊 Overview</div>
+        <div class="dash-link" onclick="dashTab(this)">🗂 Directory profile</div>
+        <div class="dash-link" onclick="dashTab(this)">🛍 My store & products</div>
+        <div class="dash-link" onclick="dashTab(this)">🗓 Bookings</div>
+        <div class="dash-link" onclick="dashTab(this)">💳 Billing & plan</div>
+        <div class="dash-link" onclick="dashTab(this)">⚙️ Settings</div>
+      </div>
+ 
+      <div class="dash-main">
+        <div class="dash-head">
+          <div>
+            <h2>Welcome back, Gogo Nomvula</h2>
+            <div class="dsub">Here's how your practice is doing this month</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('addproduct-modal')">+ Add product</button>
+        </div>
+ 
+        <div class="subscription-banner">
+          <div class="sb-text"><strong>Store plan — R349/month.</strong> Next payment on 14 July 2026. Your listing and store stay live as long as this is active.</div>
+          <button class="btn btn-sm" onclick="dashGo('billing')">Manage plan</button>
+        </div>
+ 
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="slabel">Profile views</div>
+            <div class="sval">1,842</div>
+            <div class="sdelta">↑ 12% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="slabel">Booking requests</div>
+            <div class="sval">37</div>
+            <div class="sdelta">↑ 4 new today</div>
+          </div>
+          <div class="stat-card">
+            <div class="slabel">Store sales</div>
+            <div class="sval">R6,240</div>
+            <div class="sdelta">↑ 8% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="slabel">Avg. rating</div>
+            <div class="sval">4.9</div>
+            <div class="sdelta" style="color:var(--ink-soft);">from 84 reviews</div>
+          </div>
+        </div>
+ 
+        <div class="dash-grid-2">
+          <div class="dash-card">
+            <h3>Recent booking requests</h3>
+            <table class="dtable">
+              <tr><th>Client</th><th>Service</th><th>Requested</th><th>Status</th></tr>
+              <tr><td>Thandeka N.</td><td>Initial consultation</td><td>Today</td><td><span class="status-pill status-pending">Awaiting reply</span></td></tr>
+              <tr><td>Sipho M.</td><td>Herbal treatment</td><td>Yesterday</td><td><span class="status-pill status-paid">Confirmed</span></td></tr>
+              <tr><td>Lerato K.</td><td>Home cleansing ritual</td><td>2 days ago</td><td><span class="status-pill status-paid">Confirmed</span></td></tr>
+              <tr><td>Bongani Z.</td><td>Twasa guidance</td><td>3 days ago</td><td><span class="status-pill status-due">Needs reschedule</span></td></tr>
+            </table>
+          </div>
+          <div class="dash-card">
+            <h3>Your store listings <span style="font-size:12px; font-weight:600; color:var(--ochre-dark); cursor:pointer;" onclick="dashGo('store')">Manage all →</span></h3>
+            <div class="listing-row">
+              <div class="listing-thumb"></div>
+              <div><div class="listing-name">Imphepho bundle</div><div class="listing-meta">R85 · 12 sold</div></div>
+              <div class="listing-actions"><button class="icon-btn">✎</button></div>
+            </div>
+            <div class="listing-row">
+              <div class="listing-thumb"></div>
+              <div><div class="listing-name">Beaded isiphandla set</div><div class="listing-meta">R320 · 5 sold</div></div>
+              <div class="listing-actions"><button class="icon-btn">✎</button></div>
+            </div>
+            <div class="listing-row">
+              <div class="listing-thumb"></div>
+              <div><div class="listing-name">Umsamo cleansing oil</div><div class="listing-meta">R145 · 9 sold</div></div>
+              <div class="listing-actions"><button class="icon-btn">✎</button></div>
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+  <footer>
+    <div class="wrap">
+      <div class="fbrand">Umsizi</div>
+      <div>Demo build — not yet connected to live payments or verification · © 2026</div>
+    </div>
+  </footer>
+</div>
+ 
+<!-- MODALS -->
+<div class="modal-overlay" id="book-modal-overlay">
+  <div class="modal-box">
+    <h3>Booking request sent</h3>
+    <p>Gogo Nomvula has been notified. You'll get a confirmation by SMS once she accepts your time slot. This is a demo — no real booking was made.</p>
+    <button class="btn btn-dark btn-block" onclick="closeModal('book-modal')">Close</button>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="addproduct-modal-overlay">
+  <div class="modal-box" style="text-align:left;">
+    <h3 style="text-align:center;">Add a product to your store</h3>
+    <div class="form-group"><label>Product name</label><input type="text" placeholder="e.g. Imphepho bundle"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Price (ZAR)</label><input type="text" placeholder="85"></div>
+      <div class="form-group"><label>Stock quantity</label><input type="text" placeholder="20"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="closeModal('addproduct-modal')">Save product</button>
+  </div>
+</div>
+ 
+<script>
+  // ---------------- navigation ----------------
+  function goTo(screen){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    const el = document.getElementById('screen-'+screen);
+    if(el) el.classList.add('active');
+    const tab = document.querySelector('.nav-tab[data-screen="'+screen+'"]');
+    if(tab) tab.classList.add('active');
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.addEventListener('click', ()=>goTo(t.dataset.screen));
+  });
+ 
+  function dashTab(el){
+    document.querySelectorAll('.dash-link').forEach(d=>d.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function dashGo(name){
+    // simple demo stub — highlights relevant sidebar item
+    const map = {billing: 4, store: 2};
+    const links = document.querySelectorAll('.dash-link');
+    document.querySelectorAll('.dash-link').forEach(d=>d.classList.remove('active'));
+    if(links[map[name]]) links[map[name]].classList.add('active');
+  }
+ 
+  // ---------------- onboarding flow ----------------
+  function obStep(n){
+    document.querySelectorAll('.onboard-step').forEach(s=>s.style.display='none');
+    document.getElementById('ob-step-'+n).style.display='block';
+    window.scrollTo(0,0);
+  }
+  function finishOnboard(){
+    document.querySelectorAll('.onboard-step').forEach(s=>s.style.display='none');
+    document.getElementById('ob-step-success').style.display='block';
+    window.scrollTo(0,0);
+  }
+  function selectPlan(el){
+    document.querySelectorAll('.plan-card').forEach(p=>p.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  document.querySelectorAll('.tag-option').forEach(t=>{
+    t.addEventListener('click', ()=>t.classList.toggle('selected'));
+  });
+ 
+  // ---------------- modals ----------------
+  function openModal(id){ document.getElementById(id+'-overlay').classList.add('active'); }
+  function closeModal(id){ document.getElementById(id+'-overlay').classList.remove('active'); }
+ 
+  // ---------------- directory data ----------------
+  const healers = [
+    {name:"Gogo Nomvula Mahlangu", initials:"NM", region:"Soweto, Gauteng", tags:["Sangoma","Divination"], rating:4.9, since:2003},
+    {name:"Baba Themba Cele", initials:"TC", region:"Durban, KZN", tags:["Inyanga","Herbalist"], rating:4.8, since:1998},
+    {name:"Gogo Ntombi Dlamini", initials:"ND", region:"Mthatha, Eastern Cape", tags:["Birth Attendant"], rating:5.0, since:2010},
+    {name:"Baba Sipho Ngwenya", initials:"SN", region:"Polokwane, Limpopo", tags:["Bone Setting"], rating:4.7, since:2006},
+    {name:"Gogo Precious Khumalo", initials:"PK", region:"Soshanguve, Gauteng", tags:["Spiritual Cleansing","Sangoma"], rating:4.9, since:2014},
+    {name:"Baba Mandla Zulu", initials:"MZ", region:"Pietermaritzburg, KZN", tags:["Inyanga","Herbalist"], rating:4.8, since:2001},
+    {name:"Gogo Lindiwe Mokoena", initials:"LM", region:"Mahikeng, North West", tags:["Divination","Marriage Counselling"], rating:4.6, since:2009},
+    {name:"Baba Vusi Mahlobo", initials:"VM", region:"Nelspruit, Mpumalanga", tags:["Bone Setting","Herbalist"], rating:4.9, since:1995},
+    {name:"Gogo Zanele Buthelezi", initials:"ZB", region:"Kimberley, Northern Cape", tags:["Sangoma","Spiritual Cleansing"], rating:5.0, since:2012},
+  ];
+ 
+  const grid = document.getElementById('directory-grid');
+  healers.forEach(h=>{
+    const card = document.createElement('div');
+    card.className = 'healer-card';
+    card.onclick = ()=>goTo('profile');
+    card.innerHTML = `
+      <div class="healer-photo">
+        <div class="initials">${h.initials}</div>
+        <div class="verified-badge">✓ Verified</div>
+      </div>
+      <div class="healer-info">
+        <h3>${h.name}</h3>
+        <div class="healer-region">📍 ${h.region}</div>
+        <div class="specialty-tags">${h.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="healer-meta">
+          <div class="rating">★ ${h.rating}</div>
+          <div class="since">Since ${h.since}</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+ 
+  // ---------------- marketplace data ----------------
+  const products = [
+    {name:"Imphepho bundle, dried", cat:"Herbs & Muthi", price:85},
+    {name:"Beaded isiphandla, full set", cat:"Beadwork Supplies", price:320},
+    {name:"Goat skin, tanned", cat:"Skins & Regalia", price:480},
+    {name:"Bone throwing set, traditional", cat:"Divination Tools", price:650},
+    {name:"Umsamo cleansing oil, 100ml", cat:"Ritual Items", price:145},
+    {name:"Isidwaba ceremonial skirt", cat:"Skins & Regalia", price:890},
+    {name:"Impepho & camphor incense pack", cat:"Ritual Items", price:60},
+    {name:"Brass divination bowl", cat:"Divination Tools", price:410},
+    {name:"Mixed bead strand pack, 10 colours", cat:"Beadwork Supplies", price:95},
+    {name:"Dried buchu & wormwood pack", cat:"Herbs & Muthi", price:70},
+    {name:"Cowhide drum, hand-stretched", cat:"Skins & Regalia", price:1240},
+    {name:"Carved walking staff", cat:"Ritual Items", price:380},
+  ];
+ 
+  const mpGrid = document.getElementById('marketplace-grid');
+  products.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="pimg-lg"><span class="admin-tag">Sold by Umsizi</span></div>
+      <div class="pinfo-lg">
+        <div class="pname-lg">${p.name}</div>
+        <div class="pcat">${p.cat}</div>
+        <div class="pfoot">
+          <div class="pprice-lg">R${p.price}</div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    `;
+    mpGrid.appendChild(card);
+  });
+ 
+  // close modal on background click
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.classList.remove('active'); });
+  });
+</script>
+ 
+</body>
+</html>
