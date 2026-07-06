@@ -1,1018 +1,1984 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Umsizi — Find Traditional Healers, Stock Your Practice</title>
+<title>Umsizi — South African Traditional Healers Directory & Marketplace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --soil:#1C1208;
-    --bone:#F2E8D5;
-    --ochre:#A8431E;
-    --ochre-dark:#7E3115;
-    --leaf:#5C6B3F;
-    --grass:#D4A24C;
-    --paper:#FAFAF7;
-    --ink:#2A1E13;
-    --ink-soft:#6B5D4D;
-    --line:#E3D8C2;
-    --card:#FFFFFF;
-    --radius:10px;
-    --shadow: 0 1px 2px rgba(28,18,8,0.04), 0 8px 24px rgba(28,18,8,0.06);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    font-family:'Inter',sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    letter-spacing:-0.01em;
-    color:var(--soil);
-  }
-  a{color:inherit;text-decoration:none;}
-  button{font-family:inherit;cursor:pointer;}
-  ::selection{background:var(--grass); color:var(--soil);}
-  :focus-visible{outline:2px solid var(--ochre); outline-offset:2px;}
- 
-  /* ---------- layout shell ---------- */
-  .app{min-height:100vh; display:flex; flex-direction:column;}
-  .topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 32px; border-bottom:1px solid var(--line);
-    background:var(--paper); position:sticky; top:0; z-index:50;
-  }
-  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:21px; color:var(--soil);}
-  .brand .mark{
-    width:30px;height:30px;border-radius:7px;background:var(--ochre);
-    display:flex;align-items:center;justify-content:center;color:var(--bone);
-    font-size:15px; font-weight:700; flex-shrink:0;
-  }
-  .nav-tabs{display:flex; gap:4px; background:var(--bone); padding:4px; border-radius:999px;}
-  .nav-tab{
-    padding:9px 18px; border-radius:999px; border:none; background:transparent;
-    font-size:14px; font-weight:600; color:var(--ink-soft); transition:.15s;
-  }
-  .nav-tab.active{background:var(--soil); color:var(--bone);}
-  .nav-tab:hover:not(.active){color:var(--soil);}
-  .top-actions{display:flex; gap:10px; align-items:center;}
-  .btn{
-    border-radius:999px; border:1px solid var(--line); background:var(--card);
-    padding:10px 18px; font-size:14px; font-weight:600; color:var(--ink); transition:.15s;
-    display:inline-flex; align-items:center; gap:6px;
-  }
-  .btn:hover{border-color:var(--ochre); color:var(--ochre-dark);}
-  .btn-primary{background:var(--ochre); border-color:var(--ochre); color:#fff;}
-  .btn-primary:hover{background:var(--ochre-dark); border-color:var(--ochre-dark); color:#fff;}
-  .btn-dark{background:var(--soil); border-color:var(--soil); color:var(--bone);}
-  .btn-dark:hover{background:#000; border-color:#000; color:var(--bone);}
-  .btn-ghost{background:transparent; border-color:transparent;}
-  .btn-ghost:hover{background:var(--bone); color:var(--soil);}
-  .btn-sm{padding:7px 14px; font-size:13px;}
-  .btn-block{width:100%; justify-content:center;}
- 
-  .screen{display:none; flex:1;}
-  .screen.active{display:block;}
- 
-  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
- 
-  /* ---------- HOME / DIRECTORY HERO ---------- */
-  .hero{
-    background:var(--soil); color:var(--bone); padding:64px 0 0; position:relative; overflow:hidden;
-  }
-  .hero .wrap{padding-bottom:48px; position:relative; z-index:2;}
-  .hero-eyebrow{
-    font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--grass); margin-bottom:14px; display:flex; align-items:center; gap:8px;
-  }
-  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--grass);}
-  .hero h1{
-    font-size:50px; line-height:1.04; color:var(--bone); margin:0 0 18px; max-width:680px;
-  }
-  .hero h1 em{color:var(--grass); font-style:normal;}
-  .hero p.lead{font-size:17px; line-height:1.6; color:#D9CDB8; max-width:540px; margin:0 0 32px;}
- 
-  .search-panel{
-    background:var(--bone); border-radius:14px; padding:20px; display:flex; gap:10px;
-    box-shadow:var(--shadow); max-width:760px;
-  }
-  .search-field{
-    flex:1; display:flex; align-items:center; gap:10px; background:var(--card);
-    border-radius:9px; padding:0 14px; border:1px solid var(--line);
-  }
-  .search-field svg{flex-shrink:0; opacity:.5;}
-  .search-field input, .search-field select{
-    border:none; background:transparent; padding:13px 0; font-size:14px; font-family:inherit;
-    width:100%; color:var(--ink); outline:none;
-  }
-  .hero-stats{display:flex; gap:36px; margin-top:36px; flex-wrap:wrap;}
-  .hero-stat .num{font-family:'Fraunces',serif; font-size:28px; color:var(--bone); font-weight:600;}
-  .hero-stat .lab{font-size:12.5px; color:#B6A88E; margin-top:2px;}
- 
-  .hero-art{
-    position:absolute; right:-60px; top:0; bottom:0; width:480px; z-index:1; opacity:.9;
-  }
- 
-  /* ---------- DIRECTORY FILTERS + GRID ---------- */
-  .directory-section{padding:42px 0 80px;}
-  .filter-row{
-    display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; align-items:center;
-  }
-  .chip{
-    border:1px solid var(--line); background:var(--card); padding:8px 16px; border-radius:999px;
-    font-size:13.5px; font-weight:600; color:var(--ink-soft); transition:.15s;
-  }
-  .chip.active{background:var(--leaf); border-color:var(--leaf); color:#fff;}
-  .chip:hover:not(.active){border-color:var(--leaf); color:var(--leaf);}
-  .result-count{font-size:13.5px; color:var(--ink-soft); margin-left:auto;}
- 
-  .directory-grid{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
-  }
-  .healer-card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-    overflow:hidden; transition:.18s; cursor:pointer; display:flex; flex-direction:column;
-  }
-  .healer-card:hover{border-color:var(--ochre); transform:translateY(-2px); box-shadow:var(--shadow);}
-  .healer-photo{
-    height:150px; background:linear-gradient(135deg,var(--leaf),var(--soil));
-    position:relative; display:flex; align-items:flex-end; padding:14px;
-  }
-  .healer-photo .initials{
-    width:54px;height:54px;border-radius:50%;background:var(--bone);color:var(--soil);
-    display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;
-    font-weight:600; font-size:19px; border:3px solid var(--card);
-  }
-  .verified-badge{
-    position:absolute; top:12px; right:12px; background:rgba(250,250,247,.95); color:var(--leaf);
-    font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; display:flex; align-items:center; gap:4px;
-  }
-  .healer-info{padding:16px 16px 18px; flex:1; display:flex; flex-direction:column;}
-  .healer-info h3{font-size:17px; margin:0 0 3px;}
-  .healer-region{font-size:13px; color:var(--ink-soft); margin-bottom:10px; display:flex; align-items:center; gap:5px;}
-  .specialty-tags{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
-  .tag{font-size:11.5px; font-weight:600; background:var(--bone); color:var(--soil); padding:3px 9px; border-radius:6px;}
-  .healer-meta{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:10px; border-top:1px solid var(--line);}
-  .rating{font-size:13px; font-weight:600; color:var(--soil); display:flex; align-items:center; gap:4px;}
-  .since{font-size:12px; color:var(--ink-soft);}
- 
-  /* ---------- PROFILE / STOREFRONT ---------- */
-  .profile-header{background:linear-gradient(135deg,var(--leaf) 0%, var(--soil) 100%); padding:40px 0 0;}
-  .profile-top{display:flex; gap:24px; align-items:flex-end; padding-bottom:28px;}
-  .profile-avatar{
-    width:96px;height:96px;border-radius:18px;background:var(--bone); color:var(--soil);
-    display:flex;align-items:center;justify-content:center; font-family:'Fraunces',serif;
-    font-size:32px; font-weight:600; border:4px solid var(--paper); flex-shrink:0;
-  }
-  .profile-titles h1{color:#fff; font-size:30px; margin:0 0 4px;}
-  .profile-titles .ploc{color:#D9CDB8; font-size:14px; display:flex; gap:14px; align-items:center;}
-  .profile-tabs{display:flex; gap:28px; padding-top:6px;}
-  .ptab{padding:14px 2px; font-size:14px; font-weight:600; color:#D9CDB8; border-bottom:2px solid transparent;}
-  .ptab.active{color:#fff; border-color:var(--grass);}
- 
-  .profile-body{padding:40px 0 80px;}
-  .profile-layout{display:grid; grid-template-columns:1fr 320px; gap:36px;}
-  .pcard{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-bottom:20px;}
-  .pcard h3{font-size:16px; margin:0 0 14px;}
-  .pcard p{font-size:14.5px; line-height:1.65; color:var(--ink-soft); margin:0;}
- 
-  .service-row{display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--line);}
-  .service-row:last-child{border-bottom:none;}
-  .service-row .sname{font-weight:600; font-size:14.5px; margin-bottom:3px;}
-  .service-row .sdesc{font-size:13px; color:var(--ink-soft);}
-  .service-price{font-family:'Fraunces',serif; font-weight:600; font-size:16px; white-space:nowrap; margin-left:16px;}
- 
-  .product-grid-small{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
-  .product-card-sm{border:1px solid var(--line); border-radius:8px; overflow:hidden;}
-  .product-card-sm .pimg{height:90px; background:var(--bone);}
-  .product-card-sm .pinfo{padding:10px;}
-  .product-card-sm .pname{font-size:12.5px; font-weight:600;}
-  .product-card-sm .pprice{font-size:13px; color:var(--ochre-dark); font-weight:700; margin-top:2px;}
- 
-  .sidebar-cta{background:var(--soil); color:var(--bone); border-radius:var(--radius); padding:22px;}
-  .sidebar-cta h4{font-family:'Fraunces',serif; font-size:17px; margin:0 0 6px; color:#fff;}
-  .sidebar-cta p{font-size:13px; color:#C9BCA4; margin:0 0 16px; line-height:1.5;}
- 
-  .info-list{list-style:none; margin:0; padding:0; font-size:13.5px;}
-  .info-list li{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); color:var(--ink-soft);}
-  .info-list li:last-child{border-bottom:none;}
-  .info-list li span:last-child{color:var(--ink); font-weight:600;}
- 
-  .review{padding:16px 0; border-bottom:1px solid var(--line);}
-  .review:last-child{border-bottom:none;}
-  .review-head{display:flex; justify-content:space-between; margin-bottom:5px;}
-  .review-name{font-weight:600; font-size:13.5px;}
-  .review-stars{color:var(--grass); font-size:12px;}
-  .review-text{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
- 
-  /* ---------- MARKETPLACE ---------- */
-  .marketplace-hero{background:var(--bone); padding:44px 0;}
-  .marketplace-hero h1{font-size:32px; margin:0 0 8px;}
-  .marketplace-hero p{font-size:15px; color:var(--ink-soft); max-width:560px; margin:0;}
-  .mp-section{padding:36px 0 80px;}
-  .mp-layout{display:grid; grid-template-columns:220px 1fr; gap:32px;}
-  .mp-filters{}
-  .mp-filter-group{margin-bottom:26px;}
-  .mp-filter-group h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:0 0 12px; font-weight:700;}
-  .mp-filter-item{display:flex; align-items:center; gap:9px; font-size:14px; padding:6px 0; color:var(--ink);}
-  .mp-filter-item input{accent-color:var(--ochre);}
- 
-  .product-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
-  .product-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; transition:.18s;}
-  .product-card:hover{border-color:var(--ochre); box-shadow:var(--shadow); transform:translateY(-2px);}
-  .product-card .pimg-lg{height:140px; background:linear-gradient(135deg,var(--grass),var(--ochre)); position:relative;}
-  .admin-tag{position:absolute; bottom:10px; left:10px; background:rgba(28,18,8,.8); color:var(--bone); font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:5px;}
-  .product-card .pinfo-lg{padding:14px;}
-  .product-card .pname-lg{font-size:14px; font-weight:600; margin-bottom:4px;}
-  .product-card .pcat{font-size:11.5px; color:var(--ink-soft); margin-bottom:10px;}
-  .product-card .pfoot{display:flex; justify-content:space-between; align-items:center;}
-  .product-card .pprice-lg{font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:var(--ochre-dark);}
-  .add-btn{
-    width:32px;height:32px;border-radius:50%; background:var(--soil); color:var(--bone); border:none;
-    display:flex; align-items:center; justify-content:center; font-size:16px; transition:.15s;
-  }
-  .add-btn:hover{background:var(--ochre);}
- 
-  /* ---------- ONBOARDING / REGISTER ---------- */
-  .onboard-shell{background:var(--paper); min-height:calc(100vh - 73px); padding:50px 0 80px;}
-  .onboard-wrap{max-width:680px; margin:0 auto;}
-  .progress-track{display:flex; align-items:center; gap:8px; margin-bottom:40px;}
-  .progress-step{flex:1; height:4px; border-radius:4px; background:var(--line);}
-  .progress-step.done{background:var(--ochre);}
-  .step-label{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-weight:600;}
- 
-  .onboard-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:40px;}
-  .onboard-card h2{font-size:25px; margin:0 0 6px;}
-  .onboard-card .sub{font-size:14px; color:var(--ink-soft); margin:0 0 30px;}
- 
-  .form-group{margin-bottom:18px;}
-  .form-group label{display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--soil);}
-  .form-group input, .form-group select, .form-group textarea{
-    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:8px;
-    font-size:14px; font-family:inherit; background:var(--paper); color:var(--ink);
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus{
-    outline:none; border-color:var(--ochre); background:#fff;
-  }
-  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
-  .form-hint{font-size:12px; color:var(--ink-soft); margin-top:5px;}
- 
-  .tag-select{display:flex; flex-wrap:wrap; gap:8px;}
-  .tag-option{border:1px solid var(--line); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; color:var(--ink-soft); background:var(--paper);}
-  .tag-option.selected{background:var(--leaf); border-color:var(--leaf); color:#fff;}
- 
-  .plan-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px;}
-  .plan-card{border:2px solid var(--line); border-radius:12px; padding:20px; position:relative; cursor:pointer;}
-  .plan-card.selected{border-color:var(--ochre); background:#FBF2EC;}
-  .plan-card .ptag{position:absolute; top:-10px; right:16px; background:var(--grass); color:var(--soil); font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:999px;}
-  .plan-card h4{font-family:'Fraunces',serif; font-size:18px; margin:0 0 4px; color:var(--soil);}
-  .plan-price{font-size:24px; font-weight:700; color:var(--ochre-dark); margin-bottom:10px; font-family:'Fraunces',serif;}
-  .plan-price span{font-size:13px; color:var(--ink-soft); font-weight:500;}
-  .plan-feats{list-style:none; padding:0; margin:0; font-size:13px; color:var(--ink-soft);}
-  .plan-feats li{padding:4px 0; display:flex; gap:6px;}
-  .plan-feats li:before{content:"✓"; color:var(--leaf); font-weight:700;}
- 
-  .onboard-nav{display:flex; justify-content:space-between; margin-top:28px;}
- 
-  .success-box{text-align:center; padding:30px 0;}
-  .success-icon{width:64px;height:64px; background:var(--leaf); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:#fff; font-size:28px;}
- 
-  /* ---------- DASHBOARD ---------- */
-  .dash-shell{display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - 73px);}
-  .dash-sidebar{background:var(--soil); color:var(--bone); padding:24px 16px;}
-  .dash-store-id{display:flex; gap:10px; align-items:center; padding:0 8px 22px; border-bottom:1px solid #3A2D1C; margin-bottom:18px;}
-  .dash-store-id .savatar{width:38px;height:38px;border-radius:8px;background:var(--grass); color:var(--soil); display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Fraunces',serif; flex-shrink:0;}
-  .dash-store-id .sname-d{font-size:13.5px; font-weight:600; color:#fff;}
-  .dash-store-id .splan{font-size:11.5px; color:var(--grass);}
-  .dash-link{
-    display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:8px; font-size:14px;
-    color:#C9BCA4; font-weight:500; margin-bottom:2px; transition:.15s;
-  }
-  .dash-link.active{background:#3A2D1C; color:#fff;}
-  .dash-link:hover:not(.active){background:#2A2014; color:#fff;}
-  .dash-link svg{flex-shrink:0; opacity:.85;}
- 
-  .dash-main{padding:32px 36px; background:var(--paper);}
-  .dash-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px;}
-  .dash-head h2{font-size:24px; margin:0 0 4px;}
-  .dash-head .dsub{font-size:13.5px; color:var(--ink-soft);}
- 
-  .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;}
-  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px;}
-  .stat-card .slabel{font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between;}
-  .stat-card .sval{font-family:'Fraunces',serif; font-size:26px; font-weight:600; color:var(--soil);}
-  .stat-card .sdelta{font-size:12px; color:var(--leaf); font-weight:600; margin-top:4px;}
- 
-  .dash-grid-2{display:grid; grid-template-columns:1.5fr 1fr; gap:20px;}
-  .dash-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px;}
-  .dash-card h3{font-size:15.5px; margin:0 0 16px; display:flex; justify-content:space-between; align-items:center;}
- 
-  table.dtable{width:100%; border-collapse:collapse; font-size:13.5px;}
-  table.dtable th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); padding:0 0 10px; font-weight:700; border-bottom:1px solid var(--line);}
-  table.dtable td{padding:11px 0; border-bottom:1px solid var(--line); color:var(--ink);}
-  table.dtable tr:last-child td{border-bottom:none;}
-  .status-pill{font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px;}
-  .status-paid{background:#E4EFD8; color:var(--leaf);}
-  .status-pending{background:#FBEBD9; color:#A6680E;}
-  .status-due{background:#FBE0DA; color:var(--ochre-dark);}
- 
-  .subscription-banner{
-    background:linear-gradient(135deg,#FBF2EC,#F7E8DA); border:1px solid #EAD2BC; border-radius:10px;
-    padding:18px 22px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;
-  }
-  .subscription-banner .sb-text{font-size:13.5px; color:var(--ink-soft);}
-  .subscription-banner .sb-text strong{color:var(--soil);}
- 
-  .listing-row{display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);}
-  .listing-row:last-child{border-bottom:none;}
-  .listing-thumb{width:44px;height:44px;border-radius:7px;background:var(--bone); flex-shrink:0;}
-  .listing-name{font-weight:600; font-size:14px;}
-  .listing-meta{font-size:12px; color:var(--ink-soft);}
-  .listing-actions{margin-left:auto; display:flex; gap:8px;}
- 
-  .icon-btn{width:30px; height:30px; border-radius:6px; border:1px solid var(--line); background:var(--paper); display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
-  .icon-btn:hover{border-color:var(--ochre); color:var(--ochre);}
- 
-  footer{background:var(--soil); color:#9C8C75; padding:40px 0; margin-top:auto;}
-  footer .wrap{display:flex; justify-content:space-between; align-items:center; font-size:13px;}
-  footer .fbrand{color:var(--bone); font-family:'Fraunces',serif; font-weight:600; font-size:16px;}
- 
-  .modal-overlay{
-    position:fixed; inset:0; background:rgba(28,18,8,.55); z-index:200; display:none;
-    align-items:center; justify-content:center; padding:20px;
-  }
-  .modal-overlay.active{display:flex;}
-  .modal-box{background:var(--card); border-radius:14px; max-width:420px; width:100%; padding:28px; text-align:center;}
-  .modal-box h3{margin:0 0 8px; font-size:19px;}
-  .modal-box p{font-size:13.5px; color:var(--ink-soft); margin:0 0 22px; line-height:1.55;}
- 
-  @media (max-width: 900px){
-    .nav-tabs{display:none;}
-    .hero h1{font-size:34px;}
-    .hero-art{display:none;}
-    .directory-grid{grid-template-columns:1fr;}
-    .profile-layout{grid-template-columns:1fr;}
-    .product-grid{grid-template-columns:repeat(2,1fr);}
-    .mp-layout{grid-template-columns:1fr;}
-    .dash-shell{grid-template-columns:1fr;}
-    .dash-sidebar{display:none;}
-    .stat-grid{grid-template-columns:repeat(2,1fr);}
-    .dash-grid-2{grid-template-columns:1fr;}
-    .plan-grid{grid-template-columns:1fr;}
-    .form-row{grid-template-columns:1fr;}
-    .wrap{padding:0 18px;}
-  }
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>/* ===================== RESET & TOKENS ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --soil:#1A1008;--bone:#F0E6D0;--ochre:#B04A1A;--ochre-h:#8A3610;
+  --leaf:#4A6335;--grass:#C49A2A;--paper:#F8F5F0;--card:#FFFFFF;
+  --ink:#221508;--soft:#6B5B48;--line:#E0D4BC;--line2:#EDE5D4;
+  --success:#3A7A3A;--warning:#A06010;--danger:#A02020;
+  --r:10px;--r-lg:14px;--r-xl:18px;
+  --sh:0 1px 3px rgba(26,16,8,.06),0 6px 20px rgba(26,16,8,.08);
+  --sh-sm:0 1px 2px rgba(26,16,8,.04),0 2px 8px rgba(26,16,8,.06);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,h4,.serif{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--grass);color:var(--soil);}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px;border-radius:3px;}
+
+/* ===================== UTILITY ===================== */
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px;}
+.wrap-sm{max-width:720px;margin:0 auto;padding:0 28px;}
+.hidden{display:none!important;}
+.flex{display:flex;align-items:center;}
+.gap8{gap:8px;}.gap12{gap:12px;}.gap16{gap:16px;}.gap24{gap:24px;}
+.between{justify-content:space-between;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}.mt24{margin-top:24px;}
+.mb8{margin-bottom:8px;}.mb16{margin-bottom:16px;}.mb24{margin-bottom:24px;}
+.text-soft{color:var(--soft);}
+.text-sm{font-size:13px;}
+.fw6{font-weight:600;}
+.w100{width:100%;}
+.center{text-align:center;}
+.ml-auto{margin-left:auto;}
+
+/* ===================== BUTTONS ===================== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:999px;padding:10px 20px;font-size:14px;font-weight:600;border:1.5px solid transparent;transition:all .15s;white-space:nowrap;cursor:pointer;}
+.btn:disabled{opacity:.5;pointer-events:none;}
+.btn-primary{background:var(--ochre);color:#fff;border-color:var(--ochre);}
+.btn-primary:hover{background:var(--ochre-h);border-color:var(--ochre-h);}
+.btn-dark{background:var(--soil);color:var(--bone);border-color:var(--soil);}
+.btn-dark:hover{background:#0a0604;}
+.btn-outline{background:transparent;color:var(--ink);border-color:var(--line);}
+.btn-outline:hover{border-color:var(--ochre);color:var(--ochre-h);}
+.btn-ghost{background:transparent;color:var(--soft);border-color:transparent;}
+.btn-ghost:hover{background:var(--bone);color:var(--ink);}
+.btn-leaf{background:var(--leaf);color:#fff;border-color:var(--leaf);}
+.btn-leaf:hover{background:#3a5028;}
+.btn-sm{padding:7px 14px;font-size:13px;}
+.btn-xs{padding:5px 11px;font-size:12px;}
+.btn-lg{padding:14px 28px;font-size:16px;}
+.btn-block{width:100%;}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--soft);display:inline-flex;align-items:center;justify-content:center;}
+.btn-icon:hover{border-color:var(--ochre);color:var(--ochre);}
+
+/* ===================== BADGES / TAGS ===================== */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+.badge-verified{background:#E0EED6;color:var(--success);}
+.badge-pending{background:#FBE9C8;color:var(--warning);}
+.badge-danger{background:#FAD8D8;color:var(--danger);}
+.badge-grass{background:#F5EAC5;color:#806010;}
+.tag{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:7px;background:var(--bone);color:var(--soil);display:inline-block;}
+
+/* ===================== CHIPS ===================== */
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.chip{padding:8px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:13.5px;font-weight:600;color:var(--soft);transition:.15s;cursor:pointer;}
+.chip:hover{border-color:var(--leaf);color:var(--leaf);}
+.chip.active{background:var(--leaf);border-color:var(--leaf);color:#fff;}
+
+/* ===================== FORMS ===================== */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.field .hint{font-size:12px;color:var(--soft);margin-top:5px;line-height:1.4;}
+.input,.select,.textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--r);font-size:14px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);transition:.15s;}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--ochre);background:#fff;}
+.textarea{resize:vertical;min-height:100px;}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B5B48' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;}
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;font-size:14px;padding:4px 0;}
+.checkbox-row input[type=checkbox]{accent-color:var(--ochre);width:16px;height:16px;margin-top:2px;flex-shrink:0;}
+.tag-picker{display:flex;flex-wrap:wrap;gap:8px;}
+.tag-pick{padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:600;color:var(--soft);cursor:pointer;transition:.15s;background:var(--card);}
+.tag-pick:hover{border-color:var(--leaf);color:var(--leaf);}
+.tag-pick.active{background:var(--leaf);border-color:var(--leaf);color:#fff;}
+
+/* ===================== TOPBAR ===================== */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(248,245,240,.97);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--line);padding:0 28px;height:64px;display:flex;align-items:center;gap:20px;}
+.brand{font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:var(--soil);display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;}
+.brand-mark{width:34px;height:34px;background:var(--ochre);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;}
+.top-nav{display:flex;align-items:center;gap:2px;}
+.top-nav-link{padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;color:var(--soft);transition:.15s;cursor:pointer;}
+.top-nav-link:hover{color:var(--ink);background:var(--bone);}
+.top-nav-link.active{color:var(--soil);background:var(--bone);}
+.top-actions{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.cart-btn-wrap{position:relative;}
+.cart-count{position:absolute;top:-5px;right:-5px;background:var(--ochre);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.menu-toggle{display:none;width:40px;height:40px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);align-items:center;justify-content:center;margin-left:8px;flex-shrink:0;cursor:pointer;}
+
+/* ===================== MOBILE DRAWER ===================== */
+.mobile-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(26,16,8,.6);backdrop-filter:blur(3px);}
+.mobile-overlay.open{display:block;}
+.mobile-drawer{position:fixed;top:0;right:-320px;width:300px;height:100dvh;z-index:201;background:var(--soil);display:flex;flex-direction:column;transition:right .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
+.mobile-drawer.open{right:0;}
+.drawer-head{padding:20px 20px 16px;border-bottom:1px solid #3A2A18;display:flex;align-items:center;justify-content:space-between;}
+.drawer-brand{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--bone);}
+.drawer-close{width:36px;height:36px;border-radius:8px;background:#3A2A18;color:var(--bone);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-size:16px;}
+.drawer-section{padding:16px 12px 8px;}
+.drawer-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:#8A7A60;padding:0 8px;margin-bottom:8px;}
+.drawer-link{display:flex;align-items:center;gap:12px;padding:12px 12px;border-radius:9px;font-size:15px;font-weight:600;color:#D4C5A8;transition:.15s;width:100%;text-align:left;cursor:pointer;border:none;background:none;}
+.drawer-link:hover,.drawer-link.active{background:#3A2A18;color:#fff;}
+.drawer-link .dicon{font-size:17px;flex-shrink:0;width:22px;text-align:center;}
+.drawer-divider{height:1px;background:#3A2A18;margin:4px 12px;}
+.drawer-bottom{padding:16px 12px;margin-top:auto;border-top:1px solid #3A2A18;}
+
+/* ===================== CART ===================== */
+.cart-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(26,16,8,.5);}
+.cart-overlay.open{display:block;}
+.cart-drawer{position:fixed;top:0;right:-420px;width:400px;height:100dvh;background:var(--card);z-index:301;transition:right .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.cart-drawer.open{right:0;}
+.cart-head{padding:20px 24px;border-bottom:1.5px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.cart-head h3{font-family:'Fraunces',serif;font-size:20px;}
+.cart-items{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-empty{text-align:center;padding:60px 0;color:var(--soft);}
+.cart-empty .ce-icon{font-size:48px;margin-bottom:14px;}
+.cart-item{display:flex;gap:14px;padding:16px 0;border-bottom:1.5px solid var(--line2);}
+.cart-item:last-child{border-bottom:none;}
+.ci-img{width:60px;height:60px;border-radius:9px;background:var(--bone);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px;}
+.ci-info{flex:1;}
+.ci-name{font-weight:600;font-size:14px;margin-bottom:2px;}
+.ci-price{font-family:'Fraunces',serif;font-size:15px;color:var(--ochre-h);font-weight:600;}
+.ci-qty{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.qty-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
+.qty-btn:hover{border-color:var(--ochre);color:var(--ochre);}
+.qty-num{font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+.ci-remove{color:var(--soft);font-size:12px;cursor:pointer;align-self:flex-start;}
+.ci-remove:hover{color:var(--danger);}
+.cart-foot{padding:18px 24px;border-top:1.5px solid var(--line);}
+.cart-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:600;margin-bottom:14px;}
+.cart-total-row .t-amount{font-family:'Fraunces',serif;font-size:20px;color:var(--ochre-h);}
+
+/* ===================== SCREENS ===================== */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ===================== HERO ===================== */
+.hero{background:var(--soil);padding:60px 0 0;overflow:hidden;position:relative;}
+.hero::before{content:"";position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=1400&h=700&fit=crop&q=70');background-size:cover;background-position:center;opacity:0.12;pointer-events:none;}
+.hero-inner{position:relative;z-index:2;padding-bottom:52px;}
+.hero-eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--grass);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow span{width:20px;height:2px;background:var(--grass);border-radius:2px;display:inline-block;}
+.hero h1{font-family:'Fraunces',serif;font-size:52px;line-height:1.03;color:var(--bone);max-width:700px;margin-bottom:18px;}
+.hero h1 em{color:var(--grass);font-style:normal;}
+.hero-sub{font-size:17px;line-height:1.65;color:#C9B89A;max-width:520px;margin-bottom:36px;}
+.hero-search{background:var(--bone);border-radius:var(--r-xl);padding:18px;display:flex;gap:10px;flex-wrap:wrap;max-width:780px;}
+.search-field{flex:1;min-width:180px;display:flex;align-items:center;gap:9px;background:#fff;border-radius:9px;padding:0 13px;border:1.5px solid var(--line);}
+.search-field svg{flex-shrink:0;opacity:.5;}
+.search-field input,.search-field select{border:none;background:transparent;padding:12px 0;font-size:14px;font-family:inherit;color:var(--ink);outline:none;width:100%;}
+.search-field select{appearance:none;}
+.hero-stats{display:flex;gap:36px;margin-top:40px;flex-wrap:wrap;}
+.hstat .n{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:#fff;}
+.hstat .l{font-size:12px;color:#9A8A70;margin-top:2px;}
+
+/* ===================== DIRECTORY ===================== */
+.dir-section{padding:44px 0 80px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.section-title{font-size:22px;margin:0;}
+.result-info{font-size:13.5px;color:var(--soft);}
+.healer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.healer-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:.2s;cursor:pointer;}
+.healer-card:hover{border-color:var(--ochre);transform:translateY(-3px);box-shadow:var(--sh);}
+.hc-banner{height:110px;position:relative;display:flex;align-items:flex-end;padding:14px;}
+.hc-avatar{width:56px;height:56px;border-radius:50%;border:3px solid var(--card);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:600;background:var(--bone);color:var(--soil);flex-shrink:0;}
+.hc-badge-pos{position:absolute;top:10px;right:10px;}
+.hc-body{padding:14px 16px 16px;}
+.hc-name{font-family:'Fraunces',serif;font-size:17px;margin-bottom:3px;}
+.hc-region{font-size:13px;color:var(--soft);margin-bottom:10px;}
+.hc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.hc-foot{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--line2);}
+.rating{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;}
+.star{color:var(--grass);}
+.hc-since{font-size:12px;color:var(--soft);}
+.empty-state{text-align:center;padding:64px 20px;color:var(--soft);}
+.empty-icon{font-size:52px;margin-bottom:16px;}
+.empty-state h3{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);margin-bottom:8px;}
+.empty-state p{font-size:14px;line-height:1.6;max-width:340px;margin:0 auto 22px;}
+
+/* ===================== PROFILE ===================== */
+.profile-hero{background:linear-gradient(140deg,var(--leaf) 0%,var(--soil) 100%);padding:36px 0 0;background-size:cover;background-position:center;}
+.profile-top{display:flex;gap:22px;align-items:flex-end;padding-bottom:24px;}
+.p-avatar{width:96px;height:96px;border-radius:18px;background:var(--bone);color:var(--soil);font-family:'Fraunces',serif;font-size:32px;font-weight:600;display:flex;align-items:center;justify-content:center;border:4px solid var(--paper);flex-shrink:0;}
+.p-meta h1{font-family:'Fraunces',serif;color:#fff;font-size:28px;margin-bottom:6px;}
+.p-details{display:flex;flex-wrap:wrap;gap:14px;font-size:13.5px;color:#C9B898;}
+.profile-tab-bar{display:flex;border-top:1px solid rgba(255,255,255,.1);overflow-x:auto;}
+.ptab{padding:14px 20px;font-size:14px;font-weight:600;color:#C0AD90;border-bottom:2.5px solid transparent;white-space:nowrap;cursor:pointer;transition:.15s;}
+.ptab:hover{color:#fff;}
+.ptab.active{color:#fff;border-color:var(--grass);}
+.profile-body{padding:36px 0 80px;}
+.profile-layout{display:grid;grid-template-columns:1fr 310px;gap:28px;align-items:start;}
+.pcard{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:22px;margin-bottom:20px;}
+.pcard:last-child{margin-bottom:0;}
+.pcard h3{font-family:'Fraunces',serif;font-size:16px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line2);}
+.svc-row{display:flex;justify-content:space-between;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line2);gap:14px;}
+.svc-row:last-child{border-bottom:none;padding-bottom:0;}
+.svc-name{font-weight:600;font-size:15px;margin-bottom:3px;}
+.svc-desc{font-size:13px;color:var(--soft);line-height:1.5;}
+.svc-price{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--ochre-h);white-space:nowrap;flex-shrink:0;}
+.store-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.smi-card{border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.15s;}
+.smi-card:hover{border-color:var(--ochre);}
+.smi-img{height:80px;background:var(--bone);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.smi-info{padding:10px;}
+.smi-name{font-size:12.5px;font-weight:600;margin-bottom:3px;}
+.smi-price{font-size:13px;color:var(--ochre-h);font-weight:700;}
+.review-item{padding:15px 0;border-bottom:1px solid var(--line2);}
+.review-item:last-child{border-bottom:none;padding-bottom:0;}
+.review-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.reviewer{font-weight:600;font-size:14px;}
+.review-stars{color:var(--grass);font-size:13px;letter-spacing:1px;}
+.review-text{font-size:14px;color:var(--soft);line-height:1.6;}
+.review-date{font-size:11.5px;color:var(--soft);margin-top:4px;}
+.info-dl{list-style:none;}
+.info-dl li{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line2);font-size:14px;}
+.info-dl li:last-child{border-bottom:none;}
+.info-dl .k{color:var(--soft);}
+.info-dl .v{font-weight:600;}
+.book-cta-card{background:var(--soil);border-radius:var(--r-lg);padding:22px;margin-bottom:16px;}
+.book-cta-card h4{font-family:'Fraunces',serif;font-size:18px;color:#fff;margin-bottom:6px;}
+.book-cta-card p{font-size:13.5px;color:#C0AD90;line-height:1.5;margin-bottom:18px;}
+
+/* ===================== MARKETPLACE ===================== */
+.mp-hero{background:var(--bone);padding:44px 0 34px;border-bottom:1.5px solid var(--line);}
+.mp-hero h1{font-family:'Fraunces',serif;font-size:34px;margin-bottom:8px;}
+.mp-hero p{font-size:15.5px;color:var(--soft);max-width:580px;line-height:1.6;}
+.mp-body{padding:36px 0 80px;}
+.mp-layout{display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start;}
+.filter-sidebar{}
+.filter-group{margin-bottom:26px;}
+.filter-group h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--soft);margin-bottom:12px;}
+.filter-item{display:flex;align-items:center;gap:9px;font-size:14px;padding:5px 0;cursor:pointer;}
+.filter-item input{accent-color:var(--ochre);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
+.price-inputs{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.price-inputs input{width:80px;padding:7px 10px;border:1.5px solid var(--line);border-radius:7px;font-size:13px;font-family:inherit;}
+.mp-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.sort-select{padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13.5px;font-family:inherit;background:var(--card);}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.product-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:.2s;display:flex;flex-direction:column;}
+.product-card:hover{border-color:var(--ochre);box-shadow:var(--sh);transform:translateY(-2px);}
+.pc-img{height:150px;background:linear-gradient(135deg,var(--bone),var(--line2));position:relative;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.pc-seller-tag{position:absolute;bottom:10px;left:10px;background:rgba(26,16,8,.8);color:var(--bone);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px;}
+.pc-body{padding:15px;flex:1;display:flex;flex-direction:column;}
+.pc-cat{font-size:11.5px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+.pc-name{font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.3;}
+.pc-desc{font-size:13px;color:var(--soft);line-height:1.5;margin-bottom:12px;flex:1;}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.pc-price{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--ochre-h);}
+.add-to-cart{width:36px;height:36px;border-radius:50%;background:var(--soil);color:var(--bone);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;transition:.15s;flex-shrink:0;}
+.add-to-cart:hover{background:var(--ochre);}
+
+/* ===================== ONBOARDING ===================== */
+.onboard-screen{background:var(--paper);min-height:calc(100vh - 64px);padding:50px 0 80px;}
+.onboard-progress{margin-bottom:32px;}
+.op-label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--soft);margin-bottom:10px;}
+.op-track{display:flex;gap:6px;}
+.op-step{flex:1;height:4px;border-radius:4px;background:var(--line);transition:.3s;}
+.op-step.done{background:var(--ochre);}
+.ob-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-xl);padding:40px;}
+.ob-card h2{font-family:'Fraunces',serif;font-size:26px;margin-bottom:7px;}
+.ob-sub{font-size:14.5px;color:var(--soft);margin-bottom:26px;line-height:1.55;}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:26px;}
+.plan-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px;}
+.plan-card{border:2px solid var(--line);border-radius:var(--r-lg);padding:22px;cursor:pointer;transition:.15s;position:relative;}
+.plan-card:hover{border-color:var(--ochre);}
+.plan-card.selected{border-color:var(--ochre);background:#FBF0EA;}
+.plan-card .pop{position:absolute;top:-10px;right:14px;background:var(--grass);color:var(--soil);font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.plan-name{font-family:'Fraunces',serif;font-size:19px;margin-bottom:5px;}
+.plan-price{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--ochre-h);margin-bottom:12px;}
+.plan-price sub{font-size:13px;color:var(--soft);font-weight:400;}
+.plan-feats{list-style:none;font-size:13.5px;color:var(--soft);}
+.plan-feats li{padding:4px 0;display:flex;gap:7px;}
+.plan-feats li::before{content:"✓";color:var(--leaf);font-weight:700;flex-shrink:0;}
+.success-card{text-align:center;padding:20px 0;}
+.success-icon{width:70px;height:70px;border-radius:50%;background:var(--leaf);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+
+/* ===================== DASHBOARD ===================== */
+.dash-layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px);}
+.dash-sidebar{background:var(--soil);padding:18px 12px;}
+.ds-store{display:flex;gap:11px;align-items:center;padding:6px 8px 18px;border-bottom:1px solid #3A2A18;margin-bottom:12px;}
+.ds-avatar{width:40px;height:40px;border-radius:9px;background:var(--grass);color:var(--soil);font-family:'Fraunces',serif;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ds-name{font-size:13.5px;font-weight:600;color:#fff;line-height:1.3;}
+.ds-plan{font-size:11.5px;color:var(--grass);margin-top:2px;}
+.ds-link{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:9px;font-size:14px;font-weight:500;color:#C4B49A;transition:.15s;width:100%;text-align:left;margin-bottom:2px;cursor:pointer;border:none;background:none;}
+.ds-link:hover,.ds-link.active{background:#3A2A18;color:#fff;}
+.ds-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+.ds-sep{height:1px;background:#3A2A18;margin:8px 0;}
+.dash-main{background:var(--paper);padding:32px 36px;overflow-y:auto;}
+.dash-section{display:none;}
+.dash-section.active{display:block;}
+.dash-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.dash-head h2{font-family:'Fraunces',serif;font-size:25px;margin-bottom:4px;}
+.dash-head .ds-sub{font-size:13.5px;color:var(--soft);}
+.sub-banner{background:linear-gradient(135deg,#FBF0E8,#F5E8D4);border:1.5px solid #E0C8A8;border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.sub-banner .sb-text{font-size:14px;color:var(--soft);}
+.sub-banner .sb-text strong{color:var(--ink);}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;}
+.stat-box{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:18px;}
+.stat-box .sl{font-size:12px;font-weight:600;color:var(--soft);margin-bottom:8px;}
+.stat-box .sv{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--soil);}
+.stat-box .sd{font-size:12px;margin-top:4px;}
+.delta-up{color:var(--leaf);}
+.delta-dn{color:var(--danger);}
+.dash-2col{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;}
+.d-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:22px;}
+.d-card h3{font-family:'Fraunces',serif;font-size:15.5px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.d-card h3 .d-link-sm{font-size:12.5px;font-weight:600;color:var(--ochre-h);cursor:pointer;font-family:'Inter',sans-serif;}
+.dtable{width:100%;border-collapse:collapse;font-size:13.5px;}
+.dtable th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--soft);font-weight:700;padding:0 0 10px;border-bottom:1.5px solid var(--line);}
+.dtable td{padding:11px 0;border-bottom:1px solid var(--line2);vertical-align:middle;}
+.dtable tr:last-child td{border-bottom:none;}
+.status-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+.listing-item{display:flex;gap:13px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line2);}
+.listing-item:last-child{border-bottom:none;}
+.li-thumb{width:44px;height:44px;border-radius:8px;background:var(--bone);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.li-name{font-weight:600;font-size:14px;}
+.li-meta{font-size:12px;color:var(--soft);margin-top:2px;}
+.li-actions{margin-left:auto;display:flex;gap:6px;}
+.store-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.sp-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-lg);overflow:hidden;}
+.sp-img{height:110px;background:var(--bone);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.sp-body{padding:14px;}
+.sp-name{font-weight:600;font-size:14px;margin-bottom:3px;}
+.sp-meta{font-size:12.5px;color:var(--soft);}
+.sp-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+.booking-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line2);font-size:14px;}
+.booking-grid:last-child{border-bottom:none;}
+.booking-grid.header{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--soft);font-weight:700;padding-bottom:10px;border-bottom:1.5px solid var(--line);}
+.profile-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* ===================== MODAL ===================== */
+.modal-bg{display:none;position:fixed;inset:0;z-index:400;background:rgba(26,16,8,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--r-xl);max-width:480px;width:100%;padding:32px;max-height:90dvh;overflow-y:auto;position:relative;}
+.modal-box h3{font-family:'Fraunces',serif;font-size:21px;margin-bottom:7px;}
+.modal-sub{font-size:14px;color:var(--soft);margin-bottom:22px;line-height:1.5;}
+.modal-close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--soft);}
+.modal-close:hover{background:var(--bone);}
+
+/* ===================== TOAST ===================== */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--soil);color:var(--bone);padding:13px 18px;border-radius:var(--r);font-size:14px;font-weight:500;pointer-events:none;opacity:0;transform:translateY(10px);transition:.25s;max-width:320px;display:flex;align-items:center;gap:10px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.t-icon{font-size:16px;}
+
+/* ===================== LOGIN ===================== */
+.login-screen{background:var(--paper);min-height:calc(100vh - 64px);padding:80px 20px;display:flex;align-items:flex-start;justify-content:center;}
+.login-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-xl);padding:40px;width:100%;max-width:440px;}
+.login-card h2{font-family:'Fraunces',serif;font-size:26px;margin-bottom:7px;}
+
+/* ===================== FOOTER ===================== */
+.footer{background:var(--soil);color:#8A7A60;padding:48px 0 28px;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.f-brand{font-family:'Fraunces',serif;font-size:20px;color:var(--bone);margin-bottom:10px;}
+.f-desc{font-size:13.5px;line-height:1.65;max-width:240px;}
+.f-col h5{font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:#C9B898;margin-bottom:14px;}
+.f-col a{display:block;font-size:13.5px;padding:4px 0;color:#8A7A60;cursor:pointer;transition:.1s;}
+.f-col a:hover{color:var(--bone);}
+.footer-bottom{border-top:1px solid #3A2A18;padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;}
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:1024px){
+  .healer-grid{grid-template-columns:repeat(2,1fr);}
+  .product-grid{grid-template-columns:repeat(2,1fr);}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .dash-layout{grid-template-columns:1fr;}
+  .dash-sidebar{display:none;}
+  .mp-layout{grid-template-columns:1fr;}
+  .filter-sidebar{display:none;}
+  .profile-layout{grid-template-columns:1fr;}
+  .mp-mobile-cats{display:flex!important;}
+}
+@media(max-width:768px){
+  .top-nav{display:none;}
+  .top-actions .btn-outline,.top-actions .btn-primary:not(.cart-btn-wrap *){display:none;}
+  .menu-toggle{display:flex;}
+  .hero h1{font-size:34px;}
+  .hero-search{flex-direction:column;}
+  .search-field{min-width:100%;}
+  .healer-grid{grid-template-columns:1fr;}
+  .product-grid{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .dash-2col{grid-template-columns:1fr;}
+  .plan-cards{grid-template-columns:1fr;}
+  .profile-edit-grid{grid-template-columns:1fr;}
+  .store-grid{grid-template-columns:repeat(2,1fr);}
+  .cart-drawer{width:100%;right:-100%;}
+  .wrap,.wrap-sm{padding:0 16px;}
+  .topbar{padding:0 16px;}
+  .dash-main{padding:20px 16px;}
+  .ob-card{padding:24px;}
+  .booking-grid{grid-template-columns:1fr 1fr;font-size:13px;}
+  .booking-grid .hide-mobile{display:none;}
+  .login-screen{padding:40px 16px;}
+}
+@media(max-width:480px){
+  .stat-row{grid-template-columns:1fr;}
+  .store-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:20px;}
+  .plan-cards{grid-template-columns:1fr;}
+  .grid2{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
 </head>
 <body>
- 
-<div class="app">
- 
-  <!-- ============ TOP NAV ============ -->
-  <div class="topbar">
-    <div class="brand">
-      <div class="mark">U</div>
-      Umsizi
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <div class="brand" onclick="navigate('home')">
+    <div class="brand-mark">U</div>Umsizi
+  </div>
+  <nav class="top-nav">
+    <span class="top-nav-link active" data-nav="home" onclick="navigate('home')">Directory</span>
+    <span class="top-nav-link" data-nav="marketplace" onclick="navigate('marketplace')">Marketplace</span>
+    <span class="top-nav-link" data-nav="dashboard" onclick="navigate('dashboard')">Healer dashboard</span>
+  </nav>
+  <div class="top-actions">
+    <button class="btn btn-outline btn-sm" onclick="navigate('login')">Log in</button>
+    <button class="btn btn-primary btn-sm" onclick="navigate('register')">Register as healer</button>
+    <div class="cart-btn-wrap">
+      <button class="btn btn-ghost btn-sm" onclick="openCart()" style="padding:8px 12px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </button>
+      <span class="cart-count" id="cart-count">0</span>
     </div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" data-screen="home">Directory</button>
-      <button class="nav-tab" data-screen="marketplace">Marketplace</button>
-      <button class="nav-tab" data-screen="dashboard">Healer dashboard</button>
+    <button class="menu-toggle" onclick="openDrawer()" aria-label="Menu">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ===== MOBILE DRAWER ===== -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeDrawer()"></div>
+<nav class="mobile-drawer" id="mobile-drawer">
+  <div class="drawer-head">
+    <div class="drawer-brand">Umsizi</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+
+  <div class="drawer-section">
+    <div class="drawer-label">Navigate</div>
+    <button class="drawer-link active" data-drawer="home" onclick="navigate('home');closeDrawer()">
+      <span class="dicon">🏠</span> Directory
+    </button>
+    <button class="drawer-link" data-drawer="marketplace" onclick="navigate('marketplace');closeDrawer()">
+      <span class="dicon">🛒</span> Marketplace
+    </button>
+    <button class="drawer-link" data-drawer="dashboard" onclick="navigate('dashboard');closeDrawer()">
+      <span class="dicon">📊</span> Healer dashboard
+    </button>
+  </div>
+
+  <div class="drawer-divider"></div>
+
+  <div class="drawer-section">
+    <div class="drawer-label">Browse marketplace</div>
+    <button class="drawer-link" onclick="navigate('marketplace');mpFilterCat('Herbs & Muthi');closeDrawer()">
+      <span class="dicon">🌿</span> Herbs & Muthi
+    </button>
+    <button class="drawer-link" onclick="navigate('marketplace');mpFilterCat('Beadwork');closeDrawer()">
+      <span class="dicon">📿</span> Beadwork supplies
+    </button>
+    <button class="drawer-link" onclick="navigate('marketplace');mpFilterCat('Skins & Regalia');closeDrawer()">
+      <span class="dicon">🦓</span> Skins & Regalia
+    </button>
+    <button class="drawer-link" onclick="navigate('marketplace');mpFilterCat('Divination Tools');closeDrawer()">
+      <span class="dicon">🦴</span> Divination tools
+    </button>
+    <button class="drawer-link" onclick="navigate('marketplace');mpFilterCat('Ritual Items');closeDrawer()">
+      <span class="dicon">🪔</span> Ritual items
+    </button>
+  </div>
+
+  <div class="drawer-divider"></div>
+
+  <div class="drawer-section">
+    <div class="drawer-label">Directory — by specialty</div>
+    <button class="drawer-link" onclick="state.filterSpec='Sangoma';navigate('home');closeDrawer()">
+      <span class="dicon">🪬</span> Sangoma & Divination
+    </button>
+    <button class="drawer-link" onclick="state.filterSpec='Inyanga';navigate('home');closeDrawer()">
+      <span class="dicon">🌿</span> Inyanga & Herbalist
+    </button>
+    <button class="drawer-link" onclick="state.filterSpec='Birth Attendant';navigate('home');closeDrawer()">
+      <span class="dicon">🤱</span> Birth attendants
+    </button>
+    <button class="drawer-link" onclick="state.filterSpec='Spiritual Cleansing';navigate('home');closeDrawer()">
+      <span class="dicon">✨</span> Spiritual cleansing
+    </button>
+    <button class="drawer-link" onclick="state.filterSpec='Bone Setting';navigate('home');closeDrawer()">
+      <span class="dicon">🦴</span> Bone setting
+    </button>
+  </div>
+
+  <div class="drawer-divider"></div>
+
+  <div class="drawer-bottom">
+    <button class="btn btn-outline btn-sm w100 mb8" onclick="navigate('login');closeDrawer()">Log in</button>
+    <button class="btn btn-primary btn-sm w100" onclick="navigate('register');closeDrawer()">Register as a healer</button>
+  </div>
+</nav>
+
+<!-- ===== CART DRAWER ===== -->
+<div class="cart-overlay" id="cart-overlay"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-head">
+    <h3>Your basket</h3>
+    <button class="btn btn-ghost btn-sm" onclick="closeCart()">✕ Close</button>
+  </div>
+  <div class="cart-items" id="cart-items-el"></div>
+  <div class="cart-foot" id="cart-foot" style="display:none">
+    <div class="cart-total-row">
+      <span>Total</span>
+      <span class="t-amount" id="cart-total-el">R0</span>
     </div>
-    <div class="top-actions">
-      <a class="btn btn-ghost btn-sm" onclick="goTo('login')">Log in</a>
-      <a class="btn btn-primary btn-sm" onclick="goTo('onboard')">Register as a healer</a>
+    <button class="btn btn-dark btn-block btn-lg" onclick="checkout()">Proceed to checkout</button>
+    <p style="font-size:12px;color:var(--soft);text-align:center;margin-top:10px">
+      Marketplace orders fulfilled by Umsizi · Healer products collected directly
+    </p>
+  </div>
+</div>
+
+<!-- ===== SCREEN: HOME / DIRECTORY ===== -->
+<div class="screen active" id="screen-home">
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-eyebrow"><span></span>Verified across all 9 provinces of South Africa</div>
+      <h1>Find a healer who was <em>called</em> to this work.</h1>
+      <p class="hero-sub">Umsizi connects you with verified izangoma, izinyanga, and traditional healers near you — and gives every practitioner a professional digital practice to run from.</p>
+      <div class="hero-search">
+        <div class="search-field" style="flex:2">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="search-input" placeholder="Search by name, specialty, condition…" oninput="filterDirectory()">
+        </div>
+        <div class="search-field" style="flex:1;min-width:160px">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <select id="province-filter" onchange="filterDirectory()">
+            <option value="">All provinces</option>
+            <option>Gauteng</option><option>KwaZulu-Natal</option><option>Eastern Cape</option>
+            <option>Western Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+            <option>North West</option><option>Free State</option><option>Northern Cape</option>
+          </select>
+        </div>
+        <button class="btn btn-dark" onclick="filterDirectory()">Search</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n">1,240+</div><div class="l">Verified healers</div></div>
+        <div class="hstat"><div class="n">9</div><div class="l">Provinces</div></div>
+        <div class="hstat"><div class="n">38,000+</div><div class="l">Consultations booked</div></div>
+        <div class="hstat"><div class="n">R1.2M+</div><div class="l">Products sold</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dir-section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title serif">Browse healers</h2>
+        <span class="result-info" id="result-count">Loading…</span>
+      </div>
+      <div class="chip-row mb24" id="specialty-chips">
+        <button class="chip active" data-spec="" onclick="setSpecialty(this)">All specialties</button>
+        <button class="chip" data-spec="Sangoma" onclick="setSpecialty(this)">Sangoma · Divination</button>
+        <button class="chip" data-spec="Inyanga" onclick="setSpecialty(this)">Inyanga · Herbalist</button>
+        <button class="chip" data-spec="Birth Attendant" onclick="setSpecialty(this)">Birth attendant</button>
+        <button class="chip" data-spec="Bone Setting" onclick="setSpecialty(this)">Bone setting</button>
+        <button class="chip" data-spec="Spiritual Cleansing" onclick="setSpecialty(this)">Spiritual cleansing</button>
+      </div>
+      <div class="healer-grid" id="healer-grid"></div>
+      <div id="no-results" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No healers found</h3>
+        <p>Try a different search term or remove some filters. New practitioners are verified and listed weekly.</p>
+        <button class="btn btn-outline" onclick="clearFilters()">Clear all filters</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== SCREEN: HEALER PROFILE ===== -->
+<div class="screen" id="screen-profile">
+  <div class="profile-hero">
+    <div class="wrap">
+      <button class="btn btn-ghost btn-sm" style="color:#C0AD90;margin-bottom:16px" onclick="navigate('home')">← Back to directory</button>
+      <div class="profile-top">
+        <div class="p-avatar" id="p-avatar">NM</div>
+        <div class="p-meta">
+          <h1 id="p-name">Loading…</h1>
+          <div class="p-details" id="p-details"></div>
+        </div>
+      </div>
+      <div class="profile-tab-bar">
+        <div class="ptab active" data-ptab="overview" onclick="switchProfileTab(this)">Overview</div>
+        <div class="ptab" data-ptab="services" onclick="switchProfileTab(this)">Services</div>
+        <div class="ptab" data-ptab="store" onclick="switchProfileTab(this)">Store</div>
+        <div class="ptab" data-ptab="reviews" onclick="switchProfileTab(this)">Reviews</div>
+      </div>
     </div>
   </div>
- 
-  <!-- ============ SCREEN: HOME / DIRECTORY ============ -->
-  <div class="screen active" id="screen-home">
- 
-    <div class="hero">
-      <div class="wrap">
-        <div class="hero-eyebrow"><span class="dot"></span> Verified across all 9 provinces</div>
-        <h1>Find a healer who was <em>called</em> to this work — not just listed for it.</h1>
-        <p class="lead">Umsizi connects you with verified izangoma, izinyanga, and traditional birth attendants near you, and gives every healer a store to run their practice properly.</p>
- 
-        <div class="search-panel">
-          <div class="search-field">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search by name, specialty, or condition...">
+  <div class="profile-body">
+    <div class="wrap">
+      <div class="profile-layout">
+        <div id="profile-content"></div>
+        <div id="profile-sidebar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: MARKETPLACE ===== -->
+<div class="screen" id="screen-marketplace">
+  <div class="mp-hero">
+    <div class="wrap">
+      <span class="badge badge-grass" style="margin-bottom:12px">Fulfilled by Umsizi</span>
+      <h1 class="serif">Equipment & Supplies Marketplace</h1>
+      <p>Everything a healer needs — herbs, beadwork, skins, divination tools and ritual items. Sourced, stocked and shipped by Umsizi. Registered healers get 10% off all orders.</p>
+    </div>
+  </div>
+
+  <div class="mp-body">
+    <div class="wrap">
+      <!-- Mobile category chips -->
+      <div class="chip-row mb24 mp-mobile-cats" id="mp-mobile-cats" style="display:none">
+        <button class="chip active" data-mpcat="" onclick="mpCatChip(this,'')">All</button>
+        <button class="chip" data-mpcat="Herbs & Muthi" onclick="mpCatChip(this,'Herbs & Muthi')">🌿 Herbs</button>
+        <button class="chip" data-mpcat="Beadwork" onclick="mpCatChip(this,'Beadwork')">📿 Beads</button>
+        <button class="chip" data-mpcat="Skins & Regalia" onclick="mpCatChip(this,'Skins & Regalia')">🦓 Skins</button>
+        <button class="chip" data-mpcat="Divination Tools" onclick="mpCatChip(this,'Divination Tools')">🦴 Divination</button>
+        <button class="chip" data-mpcat="Ritual Items" onclick="mpCatChip(this,'Ritual Items')">🪔 Ritual</button>
+      </div>
+
+      <div class="mp-layout">
+        <!-- Sidebar filters (desktop) -->
+        <aside class="filter-sidebar">
+          <div class="filter-group">
+            <h4>Category</h4>
+            <label class="filter-item"><input type="checkbox" data-mpcat="Herbs & Muthi" checked onchange="mpSidebarFilter()"><span>🌿 Herbs & Muthi</span></label>
+            <label class="filter-item"><input type="checkbox" data-mpcat="Beadwork" checked onchange="mpSidebarFilter()"><span>📿 Beadwork supplies</span></label>
+            <label class="filter-item"><input type="checkbox" data-mpcat="Skins & Regalia" checked onchange="mpSidebarFilter()"><span>🦓 Skins & Regalia</span></label>
+            <label class="filter-item"><input type="checkbox" data-mpcat="Divination Tools" checked onchange="mpSidebarFilter()"><span>🦴 Divination tools</span></label>
+            <label class="filter-item"><input type="checkbox" data-mpcat="Ritual Items" checked onchange="mpSidebarFilter()"><span>🪔 Ritual items</span></label>
           </div>
-          <div class="search-field" style="flex:0 0 180px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <select>
-              <option>All provinces</option>
-              <option>Gauteng</option>
-              <option>KwaZulu-Natal</option>
-              <option>Eastern Cape</option>
-              <option>Western Cape</option>
-              <option>Limpopo</option>
+          <div class="filter-group">
+            <h4>Price (ZAR)</h4>
+            <div class="price-inputs">
+              <input type="number" id="price-min" placeholder="Min" oninput="mpSidebarFilter()">
+              <span>—</span>
+              <input type="number" id="price-max" placeholder="Max" oninput="mpSidebarFilter()">
+            </div>
+          </div>
+          <div class="filter-group">
+            <h4>Availability</h4>
+            <label class="filter-item"><input type="checkbox" id="in-stock-only" checked onchange="mpSidebarFilter()"><span>In stock only</span></label>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="mpReset()" style="width:100%;color:var(--soft)">Clear all filters</button>
+        </aside>
+
+        <!-- Product grid -->
+        <div>
+          <div class="mp-toolbar">
+            <span class="result-info" id="mp-count">Loading…</span>
+            <select class="sort-select" id="mp-sort" onchange="renderMarketplace()">
+              <option value="default">Featured</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="name">Name A–Z</option>
             </select>
           </div>
-          <button class="btn btn-dark" style="padding:0 26px;">Search</button>
+          <div class="product-grid" id="product-grid"></div>
+          <div id="mp-empty" class="empty-state hidden">
+            <div class="empty-icon">📦</div>
+            <h3>No products match</h3>
+            <p>Try adjusting the filters or selecting a different category.</p>
+            <button class="btn btn-outline" onclick="mpReset()">Clear filters</button>
+          </div>
         </div>
- 
-        <div class="hero-stats">
-          <div class="hero-stat"><div class="num">1,240+</div><div class="lab">Verified healers</div></div>
-          <div class="hero-stat"><div class="num">9</div><div class="lab">Provinces covered</div></div>
-          <div class="hero-stat"><div class="num">38,000+</div><div class="lab">Consultations booked</div></div>
-        </div>
-      </div>
-    </div>
- 
-    <div class="directory-section">
-      <div class="wrap">
-        <div class="filter-row">
-          <button class="chip active">All specialties</button>
-          <button class="chip">Sangoma · Divination</button>
-          <button class="chip">Inyanga · Herbalist</button>
-          <button class="chip">Birth attendant</button>
-          <button class="chip">Bone setting</button>
-          <button class="chip">Spiritual cleansing</button>
-          <span class="result-count">1,240 healers found</span>
-        </div>
- 
-        <div class="directory-grid" id="directory-grid"></div>
       </div>
     </div>
   </div>
- 
-  <!-- ============ SCREEN: HEALER PROFILE / STOREFRONT ============ -->
-  <div class="screen" id="screen-profile">
-    <div class="profile-header">
-      <div class="wrap">
-        <div class="profile-top">
-          <div class="profile-avatar">NM</div>
-          <div class="profile-titles">
-            <h1>Gogo Nomvula Mahlangu</h1>
-            <div class="ploc">
-              <span>📍 Soweto, Gauteng</span>
-              <span>•</span>
-              <span>Practicing since 2003</span>
-              <span>•</span>
-              <span style="color:var(--grass); font-weight:700;">✓ Verified healer</span>
+</div>
+
+<!-- ===== SCREEN: REGISTER ===== -->
+<div class="screen" id="screen-register">
+  <div class="onboard-screen">
+    <div class="wrap-sm">
+
+      <div id="ob-1">
+        <div class="onboard-progress">
+          <div class="op-label"><span>Step 1 of 4 — Your details</span><span>Practice info next →</span></div>
+          <div class="op-track"><div class="op-step done"></div><div class="op-step"></div><div class="op-step"></div><div class="op-step"></div></div>
+        </div>
+        <div class="ob-card">
+          <h2>Register your practice</h2>
+          <p class="ob-sub">Creates your healer profile and store. Takes about 5 minutes. No card needed until step 4.</p>
+          <div class="grid2">
+            <div class="field"><label>First name</label><input class="input" id="ob-fname" placeholder="Nomvula"></div>
+            <div class="field"><label>Surname</label><input class="input" id="ob-lname" placeholder="Mahlangu"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Email address</label><input class="input" id="ob-email" type="email" placeholder="you@example.com"></div>
+            <div class="field"><label>Phone number</label><input class="input" id="ob-phone" type="tel" placeholder="082 000 0000"></div>
+          </div>
+          <div class="grid2">
+            <div class="field">
+              <label>Province</label>
+              <select class="select" id="ob-province">
+                <option value="">Select province…</option>
+                <option>Gauteng</option><option>KwaZulu-Natal</option><option>Eastern Cape</option>
+                <option>Western Cape</option><option>Limpopo</option><option>Mpumalanga</option>
+                <option>North West</option><option>Free State</option><option>Northern Cape</option>
+              </select>
+            </div>
+            <div class="field"><label>Town / suburb</label><input class="input" id="ob-town" placeholder="e.g. Soweto"></div>
+          </div>
+          <div class="field">
+            <div class="checkbox-row">
+              <input type="checkbox" id="ob-agree">
+              <label for="ob-agree">I agree to the <a href="#" style="color:var(--ochre)">Terms of Service</a> and <a href="#" style="color:var(--ochre)">Privacy Policy</a></label>
             </div>
           </div>
-        </div>
-        <div class="profile-tabs">
-          <div class="ptab active">Overview</div>
-          <div class="ptab">Services</div>
-          <div class="ptab">Store</div>
-          <div class="ptab">Reviews (84)</div>
+          <div class="ob-nav"><span></span><button class="btn btn-primary" onclick="obNext(1)">Continue →</button></div>
         </div>
       </div>
-    </div>
- 
-    <div class="profile-body">
-      <div class="wrap">
-        <div class="profile-layout">
-          <div>
-            <div class="pcard">
-              <h3>About Gogo Nomvula</h3>
-              <p>Called to ukuthwasa in 2001 and trained under Gogo Zanele Khumalo in Bergville. Specialises in ancestral divination, isiNyanga herbal treatment, and guidance for first-time twasa candidates. Consultations are conducted in isiZulu and English.</p>
-            </div>
- 
-            <div class="pcard">
-              <h3>Services offered</h3>
-              <div class="service-row">
-                <div><div class="sname">Initial divination consultation</div><div class="sdesc">Bones, ancestral reading · 45 minutes</div></div>
-                <div class="service-price">R450</div>
-              </div>
-              <div class="service-row">
-                <div><div class="sname">Herbal treatment course</div><div class="sdesc">Custom muthi prescription · 2 week course</div></div>
-                <div class="service-price">R680</div>
-              </div>
-              <div class="service-row">
-                <div><div class="sname">Home cleansing ritual</div><div class="sdesc">Travel included within Soweto · half day</div></div>
-                <div class="service-price">R1,200</div>
-              </div>
-              <div class="service-row">
-                <div><div class="sname">Twasa guidance session</div><div class="sdesc">For those answering the calling · 90 minutes</div></div>
-                <div class="service-price">R550</div>
-              </div>
-            </div>
- 
-            <div class="pcard">
-              <h3>From Gogo Nomvula's store</h3>
-              <div class="product-grid-small">
-                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Imphepho bundle</div><div class="pprice">R85</div></div></div>
-                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Beaded isiphandla set</div><div class="pprice">R320</div></div></div>
-                <div class="product-card-sm"><div class="pimg"></div><div class="pinfo"><div class="pname">Umsamo cleansing oil</div><div class="pprice">R145</div></div></div>
-              </div>
-            </div>
- 
-            <div class="pcard">
-              <h3>Recent reviews</h3>
-              <div class="review">
-                <div class="review-head"><span class="review-name">Thandeka N.</span><span class="review-stars">★★★★★</span></div>
-                <div class="review-text">Gogo Nomvula explained everything clearly before the ritual and made my mother feel comfortable. Worth the trip from Pretoria.</div>
-              </div>
-              <div class="review">
-                <div class="review-head"><span class="review-name">Sipho M.</span><span class="review-stars">★★★★★</span></div>
-                <div class="review-text">Booked through the site, got a confirmation immediately, and she was exactly on time. Very professional setup for a sangoma.</div>
-              </div>
+
+      <div id="ob-2" class="hidden">
+        <div class="onboard-progress">
+          <div class="op-label"><span>Step 2 of 4 — Your practice</span><span>← Back | Plan next →</span></div>
+          <div class="op-track"><div class="op-step done"></div><div class="op-step done"></div><div class="op-step"></div><div class="op-step"></div></div>
+        </div>
+        <div class="ob-card">
+          <h2>Tell clients what you do</h2>
+          <p class="ob-sub">This is what appears on your public directory profile. Be specific — it helps the right clients find you.</p>
+          <div class="field">
+            <label>Specialties (select all that apply)</label>
+            <div class="tag-picker mt8">
+              <span class="tag-pick active" data-val="Sangoma">Sangoma · Divination</span>
+              <span class="tag-pick" data-val="Inyanga">Inyanga · Herbalist</span>
+              <span class="tag-pick" data-val="Birth Attendant">Birth attendant</span>
+              <span class="tag-pick" data-val="Bone Setting">Bone setting</span>
+              <span class="tag-pick" data-val="Spiritual Cleansing">Spiritual cleansing</span>
+              <span class="tag-pick" data-val="Marriage Counselling">Marriage counselling</span>
             </div>
           </div>
- 
-          <div>
-            <div class="sidebar-cta">
-              <h4>Book a consultation</h4>
-              <p>Gogo Nomvula usually replies within 2 hours. Booking holds your slot — payment happens at the consultation.</p>
-              <button class="btn btn-primary btn-block" onclick="openModal('book-modal')">Request a booking</button>
+          <div class="grid2">
+            <div class="field"><label>Years practicing</label><input class="input" id="ob-years" type="number" placeholder="e.g. 12" min="0"></div>
+            <div class="field">
+              <label>Primary language</label>
+              <select class="select" id="ob-lang">
+                <option>isiZulu & English</option><option>Sesotho & English</option>
+                <option>isiXhosa & English</option><option>Sepedi & English</option>
+                <option>Setswana & English</option><option>siSwati & English</option>
+                <option>English only</option>
+              </select>
             </div>
-            <div class="pcard" style="margin-top:16px;">
-              <h3>Practice details</h3>
-              <ul class="info-list">
-                <li><span>Languages</span><span>isiZulu, English</span></li>
-                <li><span>Years practicing</span><span>23 years</span></li>
-                <li><span>House calls</span><span>Yes, Soweto area</span></li>
-                <li><span>Registered with</span><span>THO Gauteng</span></li>
+          </div>
+          <div class="field"><label>About your practice</label><textarea class="textarea" id="ob-bio" placeholder="Share your calling, training, and what clients can expect from you…"></textarea></div>
+          <div class="field">
+            <label>Verification reference</label>
+            <input class="input" id="ob-ref" placeholder="Traditional Health Practitioners body name or mentor's full name">
+            <div class="hint">Our team manually checks this before your profile goes live. This is how clients know every healer here is listed in good faith.</div>
+          </div>
+          <div class="ob-nav">
+            <button class="btn btn-ghost" onclick="obBack(1)">← Back</button>
+            <button class="btn btn-primary" onclick="obNext(2)">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ob-3" class="hidden">
+        <div class="onboard-progress">
+          <div class="op-label"><span>Step 3 of 4 — Choose your plan</span><span>← Back | Payment next →</span></div>
+          <div class="op-track"><div class="op-step done"></div><div class="op-step done"></div><div class="op-step done"></div><div class="op-step"></div></div>
+        </div>
+        <div class="ob-card">
+          <h2>Choose your store plan</h2>
+          <p class="ob-sub">A monthly subscription keeps your profile and storefront live. Cancel anytime — your listing pauses, nothing gets deleted.</p>
+          <div class="plan-cards">
+            <div class="plan-card" data-plan="listed" onclick="selectPlan(this)">
+              <div class="plan-name">Listed</div>
+              <div class="plan-price">R149<sub>/month</sub></div>
+              <ul class="plan-feats">
+                <li>Public directory profile</li>
+                <li>Up to 6 services listed</li>
+                <li>Client booking requests</li>
+                <li>Reviews & ratings</li>
+              </ul>
+            </div>
+            <div class="plan-card selected" data-plan="store" onclick="selectPlan(this)">
+              <span class="pop">Most popular</span>
+              <div class="plan-name">Store</div>
+              <div class="plan-price">R349<sub>/month</sub></div>
+              <ul class="plan-feats">
+                <li>Everything in Listed</li>
+                <li>Unlimited services</li>
+                <li>Your own product store</li>
+                <li>Priority in search results</li>
+                <li>10% off marketplace orders</li>
               </ul>
             </div>
           </div>
+          <p style="font-size:12px;color:var(--soft);margin-top:10px">You can change or cancel anytime from your dashboard. First charge happens only after your profile is verified.</p>
+          <div class="ob-nav">
+            <button class="btn btn-ghost" onclick="obBack(2)">← Back</button>
+            <button class="btn btn-primary" onclick="obNext(3)">Continue to payment →</button>
+          </div>
         </div>
       </div>
+
+      <div id="ob-4" class="hidden">
+        <div class="onboard-progress">
+          <div class="op-label"><span>Step 4 of 4 — Payment</span><span>Almost done</span></div>
+          <div class="op-track"><div class="op-step done"></div><div class="op-step done"></div><div class="op-step done"></div><div class="op-step done"></div></div>
+        </div>
+        <div class="ob-card">
+          <h2>Set up monthly billing</h2>
+          <p class="ob-sub">Subscribing to the <strong>Store plan at R349/month</strong>. Your first charge only happens once your registration is verified — usually 1–2 business days.</p>
+          <div class="field"><label>Card number</label><input class="input" id="ob-card" placeholder="4000 0000 0000 0000" maxlength="19" oninput="fmtCard(this)"></div>
+          <div class="grid2">
+            <div class="field"><label>Expiry</label><input class="input" id="ob-expiry" placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)"></div>
+            <div class="field"><label>CVC</label><input class="input" id="ob-cvc" placeholder="123" maxlength="4"></div>
+          </div>
+          <div class="field"><label>Name on card</label><input class="input" id="ob-cardname" placeholder="As it appears on your card"></div>
+          <div class="ob-nav">
+            <button class="btn btn-ghost" onclick="obBack(3)">← Back</button>
+            <button class="btn btn-primary" id="ob-submit-btn" onclick="obSubmit()">Submit for verification</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ob-success" class="hidden">
+        <div class="ob-card">
+          <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h2>You're in the queue</h2>
+            <p class="ob-sub" style="margin-bottom:28px">Registration received. We'll verify your reference within 1–2 business days and send confirmation to your email. Your dashboard is ready now — go set up your store while you wait.</p>
+            <button class="btn btn-dark btn-lg" onclick="navigate('dashboard')">Open your dashboard →</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
- 
-  <!-- ============ SCREEN: MARKETPLACE (Admin-run equipment store) ============ -->
-  <div class="screen" id="screen-marketplace">
-    <div class="marketplace-hero">
-      <div class="wrap">
-        <h1>Equipment & supplies marketplace</h1>
-        <p>Sourced and fulfilled directly by Umsizi — beads, skins, herbs, and ritual tools for registered healers. Healer stores are listed separately on each profile.</p>
-      </div>
-    </div>
-    <div class="mp-section">
-      <div class="wrap">
-        <div class="mp-layout">
-          <div class="mp-filters">
-            <div class="mp-filter-group">
-              <h4>Category</h4>
-              <label class="mp-filter-item"><input type="checkbox" checked> Herbs & muthi</label>
-              <label class="mp-filter-item"><input type="checkbox"> Beadwork supplies</label>
-              <label class="mp-filter-item"><input type="checkbox"> Skins & regalia</label>
-              <label class="mp-filter-item"><input type="checkbox"> Divination tools</label>
-              <label class="mp-filter-item"><input type="checkbox"> Ritual items</label>
-            </div>
-            <div class="mp-filter-group">
-              <h4>Price</h4>
-              <label class="mp-filter-item"><input type="checkbox"> Under R100</label>
-              <label class="mp-filter-item"><input type="checkbox"> R100 – R500</label>
-              <label class="mp-filter-item"><input type="checkbox"> R500+</label>
-            </div>
-            <div class="mp-filter-group">
-              <h4>Availability</h4>
-              <label class="mp-filter-item"><input type="checkbox" checked> In stock only</label>
-            </div>
-          </div>
- 
-          <div>
-            <div class="filter-row" style="margin-bottom:20px;">
-              <span class="result-count" style="margin-left:0;">312 items · fulfilled by Umsizi</span>
-            </div>
-            <div class="product-grid" id="marketplace-grid"></div>
-          </div>
-        </div>
-      </div>
+</div>
+
+<!-- ===== SCREEN: LOGIN ===== -->
+<div class="screen" id="screen-login">
+  <div class="login-screen">
+    <div class="login-card">
+      <h2>Log in to Umsizi</h2>
+      <p class="ob-sub">Healers access your dashboard. Clients manage your bookings.</p>
+      <div class="field"><label>Email address</label><input class="input" id="login-email" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input class="input" id="login-pw" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-primary btn-block btn-lg mt8" id="login-btn" onclick="doLogin()">Log in</button>
+      <p style="text-align:center;font-size:13.5px;color:var(--soft);margin-top:18px">
+        New healer? <a onclick="navigate('register')" style="color:var(--ochre);cursor:pointer;font-weight:600">Register your practice →</a>
+      </p>
+      <p style="text-align:center;font-size:13px;color:var(--soft);margin-top:8px">
+        <a href="#" style="color:var(--soft)">Forgot your password?</a>
+      </p>
     </div>
   </div>
- 
-  <!-- ============ SCREEN: ONBOARDING ============ -->
-  <div class="screen" id="screen-onboard">
-    <div class="onboard-shell">
-      <div class="wrap">
-        <div class="onboard-wrap">
- 
-          <!-- STEP 1 -->
-          <div class="onboard-step" id="ob-step-1">
-            <div class="step-label"><span>Step 1 of 4 · Your details</span><span>Practice info next</span></div>
-            <div class="progress-track">
-              <div class="progress-step done"></div><div class="progress-step"></div><div class="progress-step"></div><div class="progress-step"></div>
-            </div>
-            <div class="onboard-card">
-              <h2>Register your practice</h2>
-              <p class="sub">This creates your healer profile and your store. It takes about 5 minutes.</p>
- 
-              <div class="form-group">
-                <label>Full name</label>
-                <input type="text" placeholder="e.g. Nomvula Mahlangu">
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Email address</label>
-                  <input type="email" placeholder="you@example.com">
-                </div>
-                <div class="form-group">
-                  <label>Phone number</label>
-                  <input type="tel" placeholder="082 000 0000">
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Province</label>
-                  <select>
-                    <option>Gauteng</option><option>KwaZulu-Natal</option><option>Eastern Cape</option>
-                    <option>Western Cape</option><option>Limpopo</option><option>Mpumalanga</option>
-                    <option>North West</option><option>Free State</option><option>Northern Cape</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Town / suburb</label>
-                  <input type="text" placeholder="e.g. Soweto">
-                </div>
-              </div>
-              <div class="onboard-nav">
-                <span></span>
-                <button class="btn btn-primary" onclick="obStep(2)">Continue</button>
-              </div>
-            </div>
-          </div>
- 
-          <!-- STEP 2 -->
-          <div class="onboard-step" id="ob-step-2" style="display:none;">
-            <div class="step-label"><span>Step 2 of 4 · Your practice</span><span>Plan next</span></div>
-            <div class="progress-track">
-              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step"></div><div class="progress-step"></div>
-            </div>
-            <div class="onboard-card">
-              <h2>Tell clients what you do</h2>
-              <p class="sub">This appears on your public directory profile.</p>
- 
-              <div class="form-group">
-                <label>Specialties (select all that apply)</label>
-                <div class="tag-select">
-                  <span class="tag-option selected">Sangoma · Divination</span>
-                  <span class="tag-option">Inyanga · Herbalist</span>
-                  <span class="tag-option">Birth attendant</span>
-                  <span class="tag-option">Bone setting</span>
-                  <span class="tag-option">Spiritual cleansing</span>
-                  <span class="tag-option">Marriage counselling</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Years practicing</label>
-                <input type="number" placeholder="e.g. 12">
-              </div>
-              <div class="form-group">
-                <label>About your practice</label>
-                <textarea rows="4" placeholder="Share your training, your calling, and what clients can expect..."></textarea>
-              </div>
-              <div class="form-group">
-                <label>Proof of registration / training reference</label>
-                <input type="text" placeholder="Traditional Health Practitioner body or mentor reference">
-                <div class="form-hint">Our team manually verifies this before your profile goes live — it's how clients know you're listed in good faith.</div>
-              </div>
-              <div class="onboard-nav">
-                <button class="btn btn-ghost" onclick="obStep(1)">Back</button>
-                <button class="btn btn-primary" onclick="obStep(3)">Continue</button>
-              </div>
-            </div>
-          </div>
- 
-          <!-- STEP 3: PLAN / SUBSCRIPTION -->
-          <div class="onboard-step" id="ob-step-3" style="display:none;">
-            <div class="step-label"><span>Step 3 of 4 · Choose your plan</span><span>Payment next</span></div>
-            <div class="progress-track">
-              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step"></div>
-            </div>
-            <div class="onboard-card">
-              <h2>Choose your store plan</h2>
-              <p class="sub">A monthly fee keeps your storefront and directory listing live. Cancel anytime — your listing pauses, it isn't deleted.</p>
- 
-              <div class="plan-grid">
-                <div class="plan-card" onclick="selectPlan(this)">
-                  <h4>Listed</h4>
-                  <div class="plan-price">R149<span>/mo</span></div>
-                  <ul class="plan-feats">
-                    <li>Directory profile</li>
-                    <li>Up to 6 services listed</li>
-                    <li>Client booking requests</li>
-                    <li>No store / product listings</li>
-                  </ul>
-                </div>
-                <div class="plan-card selected" onclick="selectPlan(this)">
-                  <span class="ptag">Most chosen</span>
-                  <h4>Store</h4>
-                  <div class="plan-price">R349<span>/mo</span></div>
-                  <ul class="plan-feats">
-                    <li>Everything in Listed</li>
-                    <li>Unlimited services</li>
-                    <li>Your own product store</li>
-                    <li>Priority placement in search</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="form-hint" style="margin-bottom:20px;">You can change or cancel your plan anytime from your dashboard.</div>
- 
-              <div class="onboard-nav">
-                <button class="btn btn-ghost" onclick="obStep(2)">Back</button>
-                <button class="btn btn-primary" onclick="obStep(4)">Continue to payment</button>
-              </div>
-            </div>
-          </div>
- 
-          <!-- STEP 4: PAYMENT + CONFIRM -->
-          <div class="onboard-step" id="ob-step-4" style="display:none;">
-            <div class="step-label"><span>Step 4 of 4 · Payment</span><span>Almost done</span></div>
-            <div class="progress-track">
-              <div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div><div class="progress-step done"></div>
-            </div>
-            <div class="onboard-card">
-              <h2>Set up monthly billing</h2>
-              <p class="sub">You're subscribing to the <strong>Store</strong> plan at R349/month. First charge happens once your profile is verified.</p>
- 
-              <div class="form-group">
-                <label>Card number</label>
-                <input type="text" placeholder="4000 0000 0000 0000">
-              </div>
-              <div class="form-row">
-                <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM / YY"></div>
-                <div class="form-group"><label>CVC</label><input type="text" placeholder="123"></div>
-              </div>
-              <div class="form-group">
-                <label>Billing name</label>
-                <input type="text" placeholder="As it appears on your card">
-              </div>
-              <div class="onboard-nav">
-                <button class="btn btn-ghost" onclick="obStep(3)">Back</button>
-                <button class="btn btn-primary" onclick="finishOnboard()">Submit for verification</button>
-              </div>
-            </div>
-          </div>
- 
-          <!-- SUCCESS -->
-          <div class="onboard-step" id="ob-step-success" style="display:none;">
-            <div class="onboard-card">
-              <div class="success-box">
-                <div class="success-icon">✓</div>
-                <h2>You're in the queue for verification</h2>
-                <p class="sub" style="margin-bottom:24px;">We'll review your registration reference within 1–2 business days. Your store is already set up — once verified, it goes live on the directory and your first month is billed.</p>
-                <button class="btn btn-dark" onclick="goTo('dashboard')">Go to your dashboard</button>
-              </div>
-            </div>
-          </div>
- 
+</div>
+
+<!-- ===== SCREEN: DASHBOARD ===== -->
+<div class="screen" id="screen-dashboard">
+  <div class="dash-layout">
+    <aside class="dash-sidebar">
+      <div class="ds-store">
+        <div class="ds-avatar" id="ds-avatar">NM</div>
+        <div>
+          <div class="ds-name" id="ds-store-name">Gogo Nomvula's Practice</div>
+          <div class="ds-plan">Store plan · Active</div>
         </div>
       </div>
-    </div>
-  </div>
- 
-  <!-- ============ SCREEN: HEALER DASHBOARD ============ -->
-  <div class="screen" id="screen-dashboard">
-    <div class="dash-shell">
-      <div class="dash-sidebar">
-        <div class="dash-store-id">
-          <div class="savatar">NM</div>
-          <div>
-            <div class="sname-d">Gogo Nomvula's Practice</div>
-            <div class="splan">Store plan · Active</div>
-          </div>
-        </div>
-        <div class="dash-link active" onclick="dashTab(this)">📊 Overview</div>
-        <div class="dash-link" onclick="dashTab(this)">🗂 Directory profile</div>
-        <div class="dash-link" onclick="dashTab(this)">🛍 My store & products</div>
-        <div class="dash-link" onclick="dashTab(this)">🗓 Bookings</div>
-        <div class="dash-link" onclick="dashTab(this)">💳 Billing & plan</div>
-        <div class="dash-link" onclick="dashTab(this)">⚙️ Settings</div>
-      </div>
- 
-      <div class="dash-main">
+      <button class="ds-link active" data-dsec="overview" onclick="dashNav(this)"><span class="ds-icon">📊</span>Overview</button>
+      <button class="ds-link" data-dsec="profile-edit" onclick="dashNav(this)"><span class="ds-icon">👤</span>Edit profile</button>
+      <button class="ds-link" data-dsec="services" onclick="dashNav(this)"><span class="ds-icon">📋</span>My services</button>
+      <button class="ds-link" data-dsec="store" onclick="dashNav(this)"><span class="ds-icon">🛍</span>My store</button>
+      <button class="ds-link" data-dsec="bookings" onclick="dashNav(this)"><span class="ds-icon">🗓</span>Bookings</button>
+      <div class="ds-sep"></div>
+      <button class="ds-link" data-dsec="billing" onclick="dashNav(this)"><span class="ds-icon">💳</span>Billing & plan</button>
+      <button class="ds-link" data-dsec="settings" onclick="dashNav(this)"><span class="ds-icon">⚙️</span>Settings</button>
+      <div class="ds-sep"></div>
+      <button class="ds-link" onclick="navigate('profile');state.currentHealer=healers[0]"><span class="ds-icon">👁</span>View my profile</button>
+      <button class="ds-link" onclick="navigate('marketplace')"><span class="ds-icon">🛒</span>Browse marketplace</button>
+    </aside>
+
+    <main class="dash-main">
+
+      <!-- OVERVIEW -->
+      <div class="dash-section active" id="dsec-overview">
         <div class="dash-head">
-          <div>
-            <h2>Welcome back, Gogo Nomvula</h2>
-            <div class="dsub">Here's how your practice is doing this month</div>
-          </div>
-          <button class="btn btn-primary" onclick="openModal('addproduct-modal')">+ Add product</button>
+          <div><h2>Welcome back, Gogo Nomvula</h2><div class="ds-sub">Your practice at a glance — July 2026</div></div>
+          <button class="btn btn-primary" onclick="openModal('add-product-modal')">+ Add product</button>
         </div>
- 
-        <div class="subscription-banner">
-          <div class="sb-text"><strong>Store plan — R349/month.</strong> Next payment on 14 July 2026. Your listing and store stay live as long as this is active.</div>
-          <button class="btn btn-sm" onclick="dashGo('billing')">Manage plan</button>
+        <div class="sub-banner">
+          <div class="sb-text"><strong>Store plan — R349/month.</strong> Next payment: 14 July 2026. Your listing and store stay live as long as this is active.</div>
+          <button class="btn btn-outline btn-sm" onclick="dashNav(document.querySelector('[data-dsec=billing]'))">Manage plan</button>
         </div>
- 
-        <div class="stat-grid">
-          <div class="stat-card">
-            <div class="slabel">Profile views</div>
-            <div class="sval">1,842</div>
-            <div class="sdelta">↑ 12% this month</div>
-          </div>
-          <div class="stat-card">
-            <div class="slabel">Booking requests</div>
-            <div class="sval">37</div>
-            <div class="sdelta">↑ 4 new today</div>
-          </div>
-          <div class="stat-card">
-            <div class="slabel">Store sales</div>
-            <div class="sval">R6,240</div>
-            <div class="sdelta">↑ 8% this month</div>
-          </div>
-          <div class="stat-card">
-            <div class="slabel">Avg. rating</div>
-            <div class="sval">4.9</div>
-            <div class="sdelta" style="color:var(--ink-soft);">from 84 reviews</div>
-          </div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="sl">Profile views</div><div class="sv">1,842</div><div class="sd delta-up">↑ 12% this month</div></div>
+          <div class="stat-box"><div class="sl">Booking requests</div><div class="sv">37</div><div class="sd delta-up">↑ 4 new today</div></div>
+          <div class="stat-box"><div class="sl">Store sales (ZAR)</div><div class="sv">6,240</div><div class="sd delta-up">↑ 8% this month</div></div>
+          <div class="stat-box"><div class="sl">Average rating</div><div class="sv">4.9</div><div class="sd" style="color:var(--soft)">from 84 reviews</div></div>
         </div>
- 
-        <div class="dash-grid-2">
-          <div class="dash-card">
-            <h3>Recent booking requests</h3>
+        <div class="dash-2col">
+          <div class="d-card">
+            <h3>Recent bookings <span class="d-link-sm" onclick="dashNav(document.querySelector('[data-dsec=bookings]'))">See all →</span></h3>
             <table class="dtable">
-              <tr><th>Client</th><th>Service</th><th>Requested</th><th>Status</th></tr>
-              <tr><td>Thandeka N.</td><td>Initial consultation</td><td>Today</td><td><span class="status-pill status-pending">Awaiting reply</span></td></tr>
-              <tr><td>Sipho M.</td><td>Herbal treatment</td><td>Yesterday</td><td><span class="status-pill status-paid">Confirmed</span></td></tr>
-              <tr><td>Lerato K.</td><td>Home cleansing ritual</td><td>2 days ago</td><td><span class="status-pill status-paid">Confirmed</span></td></tr>
-              <tr><td>Bongani Z.</td><td>Twasa guidance</td><td>3 days ago</td><td><span class="status-pill status-due">Needs reschedule</span></td></tr>
+              <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Thandeka N.</td><td>Initial consultation</td><td>Today</td><td><span class="status-pill badge-pending">Awaiting reply</span></td></tr>
+                <tr><td>Sipho M.</td><td>Herbal treatment</td><td>Yesterday</td><td><span class="status-pill badge-verified">Confirmed</span></td></tr>
+                <tr><td>Lerato K.</td><td>Home cleansing</td><td>2 days ago</td><td><span class="status-pill badge-verified">Confirmed</span></td></tr>
+                <tr><td>Bongani Z.</td><td>Twasa guidance</td><td>3 days ago</td><td><span class="status-pill badge-danger">Reschedule needed</span></td></tr>
+              </tbody>
             </table>
           </div>
-          <div class="dash-card">
-            <h3>Your store listings <span style="font-size:12px; font-weight:600; color:var(--ochre-dark); cursor:pointer;" onclick="dashGo('store')">Manage all →</span></h3>
-            <div class="listing-row">
-              <div class="listing-thumb"></div>
-              <div><div class="listing-name">Imphepho bundle</div><div class="listing-meta">R85 · 12 sold</div></div>
-              <div class="listing-actions"><button class="icon-btn">✎</button></div>
-            </div>
-            <div class="listing-row">
-              <div class="listing-thumb"></div>
-              <div><div class="listing-name">Beaded isiphandla set</div><div class="listing-meta">R320 · 5 sold</div></div>
-              <div class="listing-actions"><button class="icon-btn">✎</button></div>
-            </div>
-            <div class="listing-row">
-              <div class="listing-thumb"></div>
-              <div><div class="listing-name">Umsamo cleansing oil</div><div class="listing-meta">R145 · 9 sold</div></div>
-              <div class="listing-actions"><button class="icon-btn">✎</button></div>
-            </div>
+          <div class="d-card">
+            <h3>Store listings <span class="d-link-sm" onclick="dashNav(document.querySelector('[data-dsec=store]'))">Manage →</span></h3>
+            <div id="dash-listings"></div>
           </div>
         </div>
- 
+      </div>
+
+      <!-- EDIT PROFILE -->
+      <div class="dash-section hidden" id="dsec-profile-edit">
+        <div class="dash-head">
+          <div><h2>Edit profile</h2><div class="ds-sub">Changes go live once saved</div></div>
+          <button class="btn btn-primary" onclick="saveProfile()">Save changes</button>
+        </div>
+        <div class="d-card mb24">
+          <h3>Personal & practice info</h3>
+          <div class="profile-edit-grid">
+            <div class="field"><label>First name</label><input class="input" id="pe-fname" value="Nomvula"></div>
+            <div class="field"><label>Surname</label><input class="input" id="pe-lname" value="Mahlangu"></div>
+            <div class="field"><label>Title (optional)</label><input class="input" id="pe-title" value="Gogo" placeholder="e.g. Baba, Gogo"></div>
+            <div class="field"><label>Phone</label><input class="input" id="pe-phone" value="082 555 0147"></div>
+            <div class="field"><label>Province</label>
+              <select class="select" id="pe-prov">
+                <option selected>Gauteng</option><option>KwaZulu-Natal</option><option>Eastern Cape</option>
+              </select>
+            </div>
+            <div class="field"><label>Town / suburb</label><input class="input" id="pe-town" value="Soweto"></div>
+            <div class="field"><label>Years practicing</label><input class="input" id="pe-years" type="number" value="23"></div>
+            <div class="field"><label>Languages</label>
+              <select class="select"><option>isiZulu & English</option><option>English only</option></select>
+            </div>
+          </div>
+          <div class="field mt8"><label>About your practice</label>
+            <textarea class="textarea" id="pe-bio">Called to ukuthwasa in 2001 and trained under Gogo Zanele Khumalo in Bergville. Specialises in ancestral divination, isiNyanga herbal treatment, and guidance for first-time twasa candidates.</textarea>
+          </div>
+        </div>
+        <div class="d-card">
+          <h3>Specialties</h3>
+          <div class="tag-picker mt8">
+            <span class="tag-pick active">Sangoma</span>
+            <span class="tag-pick active">Divination</span>
+            <span class="tag-pick">Inyanga</span>
+            <span class="tag-pick">Spiritual Cleansing</span>
+            <span class="tag-pick">Birth Attendant</span>
+            <span class="tag-pick">Bone Setting</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="dash-section hidden" id="dsec-services">
+        <div class="dash-head">
+          <div><h2>My services</h2><div class="ds-sub">These appear on your public profile</div></div>
+          <button class="btn btn-primary" onclick="openModal('add-service-modal')">+ Add service</button>
+        </div>
+        <div class="d-card">
+          <div id="services-list"></div>
+        </div>
+      </div>
+
+      <!-- STORE -->
+      <div class="dash-section hidden" id="dsec-store">
+        <div class="dash-head">
+          <div><h2>My store</h2><div class="ds-sub">Products visible on your public profile</div></div>
+          <button class="btn btn-primary" onclick="openModal('add-product-modal')">+ Add product</button>
+        </div>
+        <div class="store-grid" id="store-grid"></div>
+      </div>
+
+      <!-- BOOKINGS -->
+      <div class="dash-section hidden" id="dsec-bookings">
+        <div class="dash-head"><div><h2>Bookings</h2><div class="ds-sub">All client booking requests</div></div></div>
+        <div class="d-card">
+          <div class="booking-grid header"><span>Client</span><span>Service</span><span class="hide-mobile">Date</span><span class="hide-mobile">Phone</span><span>Status</span></div>
+          <div id="bookings-list"></div>
+        </div>
+      </div>
+
+      <!-- BILLING -->
+      <div class="dash-section hidden" id="dsec-billing">
+        <div class="dash-head"><div><h2>Billing & plan</h2><div class="ds-sub">Manage your subscription</div></div></div>
+        <div class="d-card mb24">
+          <h3>Current plan</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line2)">
+            <div>
+              <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:600">Store plan</div>
+              <div style="font-size:13px;color:var(--soft);margin-top:3px">R349/month · Renews 14 July 2026</div>
+            </div>
+            <span class="badge badge-verified">Active</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="toast('Plan change — connect to billing API','info')">Downgrade to Listed (R149)</button>
+            <button class="btn btn-outline btn-sm" onclick="confirmPause()">Pause listing</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="confirmCancel()">Cancel subscription</button>
+          </div>
+        </div>
+        <div class="d-card">
+          <h3>Payment history</h3>
+          <table class="dtable">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>14 Jun 2026</td><td>Store plan — June 2026</td><td>R349</td><td><span class="status-pill badge-verified">Paid</span></td></tr>
+              <tr><td>14 May 2026</td><td>Store plan — May 2026</td><td>R349</td><td><span class="status-pill badge-verified">Paid</span></td></tr>
+              <tr><td>14 Apr 2026</td><td>Store plan — April 2026</td><td>R349</td><td><span class="status-pill badge-verified">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="dash-section hidden" id="dsec-settings">
+        <div class="dash-head">
+          <div><h2>Settings</h2><div class="ds-sub">Account & notification preferences</div></div>
+          <button class="btn btn-primary" onclick="toast('Settings saved','success')">Save settings</button>
+        </div>
+        <div class="d-card mb24">
+          <h3>Notifications</h3>
+          <div class="checkbox-row" style="padding:12px 0;border-bottom:1px solid var(--line2)"><input type="checkbox" checked><label>Email me when I receive a new booking request</label></div>
+          <div class="checkbox-row" style="padding:12px 0;border-bottom:1px solid var(--line2)"><input type="checkbox" checked><label>SMS me when I receive a new booking request</label></div>
+          <div class="checkbox-row" style="padding:12px 0;border-bottom:1px solid var(--line2)"><input type="checkbox"><label>Weekly summary of profile views and enquiries</label></div>
+          <div class="checkbox-row" style="padding:12px 0"><input type="checkbox" checked><label>Billing reminders before payment date</label></div>
+        </div>
+        <div class="d-card mb24">
+          <h3>Change password</h3>
+          <div class="field mt8"><label>Current password</label><input class="input" type="password" placeholder="••••••••"></div>
+          <div class="grid2">
+            <div class="field"><label>New password</label><input class="input" type="password" placeholder="••••••••"></div>
+            <div class="field"><label>Confirm new password</label><input class="input" type="password" placeholder="••••••••"></div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="toast('Password updated','success')">Update password</button>
+        </div>
+        <div class="d-card">
+          <h3 style="color:var(--danger)">Danger zone</h3>
+          <p style="font-size:14px;color:var(--soft);margin-bottom:16px">Deleting your account removes your profile, store, and all listing data permanently. This cannot be undone.</p>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);border:1.5px solid #FAD8D8" onclick="toast('Contact support@umsizi.co.za to request account deletion','info')">Request account deletion</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="f-brand">Umsizi</div>
+        <p class="f-desc">Connecting communities with South Africa's traditional healers. Built with respect for the calling, and the practitioners who answer it.</p>
+      </div>
+      <div class="f-col">
+        <h5>Directory</h5>
+        <a onclick="navigate('home')">Find a healer</a>
+        <a onclick="navigate('home')">Browse by province</a>
+        <a onclick="navigate('home')">Browse by specialty</a>
+        <a onclick="navigate('home')">Verified healers</a>
+      </div>
+      <div class="f-col">
+        <h5>For healers</h5>
+        <a onclick="navigate('register')">Register your practice</a>
+        <a onclick="navigate('dashboard')">Healer dashboard</a>
+        <a onclick="navigate('marketplace')">Browse marketplace</a>
+        <a>Pricing plans</a>
+      </div>
+      <div class="f-col">
+        <h5>Umsizi</h5>
+        <a>About us</a>
+        <a>Verification process</a>
+        <a>Contact support</a>
+        <a>Privacy policy</a>
       </div>
     </div>
-  </div>
- 
-  <footer>
-    <div class="wrap">
-      <div class="fbrand">Umsizi</div>
-      <div>Demo build — not yet connected to live payments or verification · © 2026</div>
+    <div class="footer-bottom">
+      <span>© 2026 Umsizi. All rights reserved.</span>
+      <span>Built for South Africa's traditional healers · <a href="mailto:support@umsizi.co.za" style="color:var(--soft)">support@umsizi.co.za</a></span>
     </div>
-  </footer>
-</div>
- 
-<!-- MODALS -->
-<div class="modal-overlay" id="book-modal-overlay">
+  </div>
+</footer>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-bg" id="add-product-modal">
   <div class="modal-box">
-    <h3>Booking request sent</h3>
-    <p>Gogo Nomvula has been notified. You'll get a confirmation by SMS once she accepts your time slot. This is a demo — no real booking was made.</p>
-    <button class="btn btn-dark btn-block" onclick="closeModal('book-modal')">Close</button>
-  </div>
-</div>
- 
-<div class="modal-overlay" id="addproduct-modal-overlay">
-  <div class="modal-box" style="text-align:left;">
-    <h3 style="text-align:center;">Add a product to your store</h3>
-    <div class="form-group"><label>Product name</label><input type="text" placeholder="e.g. Imphepho bundle"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Price (ZAR)</label><input type="text" placeholder="85"></div>
-      <div class="form-group"><label>Stock quantity</label><input type="text" placeholder="20"></div>
+    <button class="modal-close" onclick="closeModal('add-product-modal')">✕</button>
+    <h3>Add a product</h3>
+    <p class="modal-sub">Appears on your public storefront. Clients can enquire or buy directly from your profile.</p>
+    <div class="field"><label>Product name</label><input class="input" id="mp-name" placeholder="e.g. Imphepho bundle, dried"></div>
+    <div class="grid2">
+      <div class="field"><label>Price (ZAR)</label><input class="input" id="mp-price" type="number" placeholder="85" min="0"></div>
+      <div class="field"><label>Stock quantity</label><input class="input" id="mp-stock" type="number" placeholder="20" min="0"></div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="closeModal('addproduct-modal')">Save product</button>
+    <div class="field"><label>Category</label>
+      <select class="select" id="mp-cat">
+        <option>Herbs & Muthi</option><option>Beadwork</option><option>Skins & Regalia</option><option>Divination Tools</option><option>Ritual Items</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Description (optional)</label><textarea class="textarea" id="mp-desc" placeholder="What it is, what it's for, how to use it…" style="min-height:80px"></textarea></div>
+    <button class="btn btn-primary btn-block mt8" onclick="addProduct()">Add to my store</button>
   </div>
 </div>
- 
-<script>
-  // ---------------- navigation ----------------
-  function goTo(screen){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-    const el = document.getElementById('screen-'+screen);
-    if(el) el.classList.add('active');
-    const tab = document.querySelector('.nav-tab[data-screen="'+screen+'"]');
-    if(tab) tab.classList.add('active');
-    window.scrollTo(0,0);
-  }
-  document.querySelectorAll('.nav-tab').forEach(t=>{
-    t.addEventListener('click', ()=>goTo(t.dataset.screen));
+
+<div class="modal-bg" id="add-service-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('add-service-modal')">✕</button>
+    <h3>Add a service</h3>
+    <p class="modal-sub">Services appear on your profile and in the booking form.</p>
+    <div class="field"><label>Service name</label><input class="input" id="svc-name" placeholder="e.g. Initial divination consultation"></div>
+    <div class="grid2">
+      <div class="field"><label>Price (ZAR)</label><input class="input" id="svc-price" type="number" placeholder="450" min="0"></div>
+      <div class="field"><label>Duration</label><input class="input" id="svc-dur" placeholder="e.g. 45 minutes"></div>
+    </div>
+    <div class="field"><label>Description</label><textarea class="textarea" id="svc-desc" placeholder="What clients can expect…" style="min-height:80px"></textarea></div>
+    <button class="btn btn-primary btn-block mt8" onclick="addService()">Add service</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="book-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('book-modal')">✕</button>
+    <h3>Request a booking</h3>
+    <p class="modal-sub" id="book-modal-sub">Send your availability to the healer. They'll confirm within a few hours.</p>
+    <div class="field"><label>Your name</label><input class="input" id="bk-name" placeholder="Full name"></div>
+    <div class="field"><label>Phone number</label><input class="input" id="bk-phone" placeholder="082 000 0000" type="tel"></div>
+    <div class="field"><label>Service requested</label>
+      <select class="select" id="bk-service">
+        <option>Initial divination consultation</option>
+        <option>Herbal treatment course</option>
+        <option>Home cleansing ritual</option>
+        <option>Twasa guidance session</option>
+      </select>
+    </div>
+    <div class="field"><label>Preferred date & time</label><input class="input" type="datetime-local" id="bk-date"></div>
+    <div class="field"><label>Notes (optional)</label><textarea class="textarea" id="bk-notes" placeholder="Anything the healer should know beforehand…" style="min-height:70px"></textarea></div>
+    <button class="btn btn-primary btn-block mt8" id="bk-submit" onclick="submitBooking()">Send booking request</button>
+    <p style="font-size:12px;color:var(--soft);text-align:center;margin-top:10px">Payment is arranged directly with the healer — not through this form.</p>
+  </div>
+</div>
+
+<div class="modal-bg" id="confirm-pause-modal">
+  <div class="modal-box" style="max-width:400px;text-align:center">
+    <h3>Pause your listing?</h3>
+    <p class="modal-sub">Your profile will be hidden from the directory and your store will go offline. You won't be billed while paused. Resume anytime.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-outline" onclick="closeModal('confirm-pause-modal')">Cancel</button>
+      <button class="btn btn-dark" onclick="doPause()">Yes, pause listing</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="confirm-cancel-modal">
+  <div class="modal-box" style="max-width:400px;text-align:center">
+    <h3 style="color:var(--danger)">Cancel subscription?</h3>
+    <p class="modal-sub">Your profile and store will go offline at the end of your current billing period (14 July 2026). Your data is kept for 90 days in case you return.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-outline" onclick="closeModal('confirm-cancel-modal')">Keep subscription</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="doCancel()">Cancel anyway</button>
+    </div>
+  </div>
+</div>
+
+<script>// ============================================================
+// STATE
+// ============================================================
+const state = {
+  currentScreen: 'home',
+  currentHealer: null,
+  currentProfileTab: 'overview',
+  selectedPlan: 'store',
+  cart: [],
+  filterSpec: '',
+  mpActiveCats: new Set(['Herbs & Muthi','Beadwork','Skins & Regalia','Divination Tools','Ritual Items']),
+  mpPriceMin: null,
+  mpPriceMax: null,
+  mpInStockOnly: true,
+  healerProducts: [
+    {id:1,name:'Imphepho bundle, dried',price:85,stock:14,cat:'Herbs & Muthi',icon:'🌿',photo:'https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=300&h=200&fit=crop&q=80'},
+    {id:2,name:'Beaded isiphandla set',price:320,stock:6,cat:'Beadwork',icon:'📿',photo:'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=300&h=200&fit=crop&q=80'},
+    {id:3,name:'Umsamo cleansing oil 100ml',price:145,stock:9,cat:'Ritual Items',icon:'🪔',photo:'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=200&fit=crop&q=80'},
+  ],
+  healerServices: [
+    {id:1,name:'Initial divination consultation',price:450,dur:'45 minutes',desc:'Bones and ancestral reading. Full session.'},
+    {id:2,name:'Herbal treatment course',price:680,dur:'2-week course',desc:'Custom muthi prescription.'},
+    {id:3,name:'Home cleansing ritual',price:1200,dur:'Half day',desc:'Travel included within Soweto.'},
+    {id:4,name:'Twasa guidance session',price:550,dur:'90 minutes',desc:'For those answering the calling.'},
+  ],
+  bookings: [
+    {client:'Thandeka Nkosi',service:'Initial consultation',date:'1 Jul 2026',phone:'082 111 2222',status:'pending'},
+    {client:'Sipho Mthembu',service:'Herbal treatment',date:'30 Jun 2026',phone:'071 333 4444',status:'confirmed'},
+    {client:'Lerato Khumalo',service:'Home cleansing',date:'29 Jun 2026',phone:'083 555 6666',status:'confirmed'},
+    {client:'Bongani Zulu',service:'Twasa guidance',date:'28 Jun 2026',phone:'079 777 8888',status:'reschedule'},
+    {client:'Ntombi Dube',service:'Initial consultation',date:'27 Jun 2026',phone:'060 999 0000',status:'confirmed'},
+  ],
+  nextProductId: 4,
+  nextServiceId: 5,
+};
+
+// ============================================================
+// HEALERS DATA
+// ============================================================
+const healers = [
+  {id:1,name:'Gogo Nomvula Mahlangu',initials:'NM',title:'Gogo',province:'Gauteng',town:'Soweto',tags:['Sangoma','Divination'],rating:4.9,reviews:84,since:2003,verified:true,years:23,langs:'isiZulu & English',bio:'Called to ukuthwasa in 2001 and trained under Gogo Zanele Khumalo in Bergville. Specialises in ancestral divination, isiNyanga herbal treatment, and guidance for first-time twasa candidates. Consultations conducted in isiZulu and English.',registered:'THO Gauteng',houseCalls:true,color:'linear-gradient(135deg,#4A6335,#1A1008)',photo:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=220&fit=crop&q=80'},
+  {id:2,name:'Baba Themba Cele',initials:'TC',title:'Baba',province:'KwaZulu-Natal',town:'Durban',tags:['Inyanga','Herbalist'],rating:4.8,reviews:61,since:1998,verified:true,years:28,langs:'isiZulu & English',bio:'Inyanga trained in the Drakensberg tradition focusing on plant medicine and chronic condition management through isidakwa and traditional herbal preparations. Over 28 years in practice.',registered:'NHAO KZN',houseCalls:false,color:'linear-gradient(135deg,#6B4020,#1A1008)',photo:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=220&fit=crop&q=80'},
+  {id:3,name:'Gogo Ntombi Dlamini',initials:'ND',title:'Gogo',province:'Eastern Cape',town:'Mthatha',tags:['Birth Attendant','Sangoma'],rating:5.0,reviews:43,since:2010,verified:true,years:16,langs:'isiXhosa & English',bio:'Traditional birth attendant and sangoma serving rural communities in the OR Tambo district. Skilled in prenatal guidance, safe traditional birth practices, and postnatal isiko rituals.',registered:'THP Eastern Cape',houseCalls:true,color:'linear-gradient(135deg,#3A5A7A,#1A1008)',photo:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=220&fit=crop&q=80'},
+  {id:4,name:'Baba Sipho Ngwenya',initials:'SN',title:'Baba',province:'Limpopo',town:'Polokwane',tags:['Bone Setting','Spiritual Cleansing'],rating:4.7,reviews:38,since:2006,verified:true,years:20,langs:'Sepedi & English',bio:'Specialist in traditional bone setting and musculoskeletal injury treatment. Also performs spiritual cleansing and protective rituals using northern Limpopo practices.',registered:'THP Limpopo',houseCalls:true,color:'linear-gradient(135deg,#7A4A20,#1A1008)',photo:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=220&fit=crop&q=80'},
+  {id:5,name:'Gogo Precious Khumalo',initials:'PK',title:'Gogo',province:'Gauteng',town:'Soshanguve',tags:['Spiritual Cleansing','Sangoma'],rating:4.9,reviews:72,since:2014,verified:true,years:12,langs:'isiZulu, Sepedi & English',bio:'Called through illness and trained in both Zulu and Sotho traditions. Offers spiritual cleansing, ukugeza, and guidance for families navigating ancestral disturbances.',registered:'THO Gauteng',houseCalls:true,color:'linear-gradient(135deg,#4A3A70,#1A1008)',photo:'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=220&fit=crop&q=80'},
+  {id:6,name:'Baba Mandla Zulu',initials:'MZ',title:'Baba',province:'KwaZulu-Natal',town:'Pietermaritzburg',tags:['Inyanga','Herbalist'],rating:4.8,reviews:56,since:2001,verified:true,years:25,langs:'isiZulu & English',bio:'Fourth-generation inyanga specialising in muthi preparation for fertility, protection, and general wellness. Supplies dried herbs from his own garden in the uMgungundlovu district.',registered:'NHAO KZN',houseCalls:false,color:'linear-gradient(135deg,#356040,#1A1008)',photo:'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=400&h=220&fit=crop&q=80'},
+  {id:7,name:'Gogo Lindiwe Mokoena',initials:'LM',title:'Gogo',province:'North West',town:'Mahikeng',tags:['Divination','Sangoma'],rating:4.6,reviews:29,since:2009,verified:true,years:17,langs:'Setswana & English',bio:'Sangoma and marriage counsellor working with couples, families in conflict, and community leaders across the North West province.',registered:'THP North West',houseCalls:false,color:'linear-gradient(135deg,#5A3050,#1A1008)',photo:'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=400&h=220&fit=crop&q=80'},
+  {id:8,name:'Baba Vusi Mahlobo',initials:'VM',title:'Baba',province:'Mpumalanga',town:'Mbombela',tags:['Bone Setting','Herbalist'],rating:4.9,reviews:48,since:1995,verified:true,years:31,langs:'siSwati & English',bio:'Senior bone setter and herbalist with over 30 years of practice in the Lowveld. Treats muscular and skeletal injuries using techniques passed down through four generations.',registered:'THP Mpumalanga',houseCalls:true,color:'linear-gradient(135deg,#4A5520,#1A1008)',photo:'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=220&fit=crop&q=80'},
+  {id:9,name:'Gogo Zanele Buthelezi',initials:'ZB',title:'Gogo',province:'Northern Cape',town:'Kimberley',tags:['Sangoma','Spiritual Cleansing'],rating:5.0,reviews:34,since:2012,verified:true,years:14,langs:'isiNdebele & English',bio:'Practicing sangoma in the Kimberley area, known for her gentle approach to first-time clients. Offers divination, spiritual cleansing, and ancestral consultation.',registered:'THP Northern Cape',houseCalls:true,color:'linear-gradient(135deg,#6A3A10,#1A1008)',photo:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=220&fit=crop&q=80'},
+];
+
+// ============================================================
+// PRODUCTS DATA
+// ============================================================
+const products = [
+  {id:101,name:'Imphepho, dried bundles ×3',cat:'Herbs & Muthi',price:85,stock:42,icon:'🌿',photo:'https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=400&h=300&fit=crop&q=80',desc:'Dried imphepho for ritual burning. Harvested in KZN.',inStock:true},
+  {id:102,name:'Buchu & wormwood pack, 100g',cat:'Herbs & Muthi',price:70,stock:38,icon:'🫙',photo:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&q=80',desc:'Traditional abdominal and digestive remedy.',inStock:true},
+  {id:103,name:'Umsamo cleansing oil, 100ml',cat:'Herbs & Muthi',price:145,stock:25,icon:'🏺',photo:'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=300&fit=crop&q=80',desc:'Multi-use ritual cleansing oil, unscented base.',inStock:true},
+  {id:104,name:'Sutherlandia herb, 50g dried',cat:'Herbs & Muthi',price:90,stock:17,icon:'🌿',photo:'https://images.unsplash.com/photo-1471943038657-ab28f2e3f1f4?w=400&h=300&fit=crop&q=80',desc:'Cancer bush. Used for immune support.',inStock:true},
+  {id:105,name:'Beaded isiphandla set, full',cat:'Beadwork',price:320,stock:9,icon:'📿',photo:'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=300&fit=crop&q=80',desc:'Traditional Zulu beaded wristlet set, all 5 colours.',inStock:true},
+  {id:106,name:'Mixed bead strand pack, 10 colours',cat:'Beadwork',price:95,stock:60,icon:'📿',photo:'https://images.unsplash.com/photo-1573408301185-9519f94816b4?w=400&h=300&fit=crop&q=80',desc:'For making your own isiphandla or ceremony beadwork.',inStock:true},
+  {id:107,name:'Beading wire & thread kit',cat:'Beadwork',price:55,stock:33,icon:'🪡',photo:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80',desc:'Nylon thread and tiger wire, 5 gauges.',inStock:true},
+  {id:108,name:'Goat skin, tanned, full',cat:'Skins & Regalia',price:480,stock:6,icon:'🦓',photo:'https://images.unsplash.com/photo-1549366021-9f761d450615?w=400&h=300&fit=crop&q=80',desc:'Tanned goat skin for ceremony regalia.',inStock:true},
+  {id:109,name:'Cowhide drum, hand-stretched',cat:'Skins & Regalia',price:1240,stock:3,icon:'🥁',photo:'https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?w=400&h=300&fit=crop&q=80',desc:'Hand-stretched on hardwood frame. Traditional size.',inStock:true},
+  {id:110,name:'Isidwaba ceremonial skirt',cat:'Skins & Regalia',price:890,stock:4,icon:'👘',photo:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=300&fit=crop&q=80',desc:'Hand-stitched from hide. Sized on request.',inStock:true},
+  {id:111,name:'Bone throwing set, 12 pieces',cat:'Divination Tools',price:650,stock:8,icon:'🦴',photo:'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400&h=300&fit=crop&q=80',desc:'Mixed bones, shells and tokens. Traditional set.',inStock:true},
+  {id:112,name:'Brass divination bowl',cat:'Divination Tools',price:410,stock:5,icon:'🫙',photo:'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=300&fit=crop&q=80',desc:'Cast brass bowl for water divination.',inStock:true},
+  {id:113,name:'Carved wooden staff, 90cm',cat:'Divination Tools',price:380,stock:7,icon:'🪄',photo:'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=300&fit=crop&q=80',desc:'Hardwood. Carved spiral pattern by hand.',inStock:true},
+  {id:114,name:'Impepho & camphor incense pack',cat:'Ritual Items',price:60,stock:55,icon:'🪔',photo:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=300&fit=crop&q=80',desc:'Pre-mixed loose incense for ritual burning.',inStock:true},
+  {id:115,name:'Clay ukhamba beer pot, 2L',cat:'Ritual Items',price:290,stock:11,icon:'🏺',photo:'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400&h=300&fit=crop&q=80',desc:'Hand-thrown clay. Fired traditionally.',inStock:true},
+  {id:116,name:'Izilulu spirit shells, set of 20',cat:'Ritual Items',price:175,stock:22,icon:'🐚',photo:'https://images.unsplash.com/photo-1509909756405-be0199881695?w=400&h=300&fit=crop&q=80',desc:'Cleaned and dried cowrie shells.',inStock:true},
+];
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + screen);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('[data-nav]').forEach(l => l.classList.remove('active'));
+  const navEl = document.querySelector('[data-nav="' + screen + '"]');
+  if (navEl) navEl.classList.add('active');
+  document.querySelectorAll('[data-drawer]').forEach(l => l.classList.remove('active'));
+  const drawerEl = document.querySelector('[data-drawer="' + screen + '"]');
+  if (drawerEl) drawerEl.classList.add('active');
+  state.currentScreen = screen;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (screen === 'home') renderDirectory();
+  if (screen === 'marketplace') { renderMarketplace(); syncMobileCats(); }
+  if (screen === 'dashboard') renderDashboard();
+  if (screen === 'profile') renderProfile();
+}
+
+// ============================================================
+// MOBILE DRAWER
+// ============================================================
+function openDrawer() {
+  document.getElementById('mobile-drawer').classList.add('open');
+  document.getElementById('mobile-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('mobile-drawer').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ============================================================
+// DIRECTORY
+// ============================================================
+function renderDirectory() {
+  const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const province = document.getElementById('province-filter')?.value || '';
+  const spec = state.filterSpec;
+  let list = healers.filter(h => {
+    const ms = !search || h.name.toLowerCase().includes(search) || h.tags.some(t => t.toLowerCase().includes(search)) || h.town.toLowerCase().includes(search) || h.bio.toLowerCase().includes(search);
+    const mp = !province || h.province === province;
+    const msp = !spec || h.tags.some(t => t.toLowerCase().includes(spec.toLowerCase()));
+    return ms && mp && msp;
   });
- 
-  function dashTab(el){
-    document.querySelectorAll('.dash-link').forEach(d=>d.classList.remove('active'));
-    el.classList.add('active');
-  }
-  function dashGo(name){
-    // simple demo stub — highlights relevant sidebar item
-    const map = {billing: 4, store: 2};
-    const links = document.querySelectorAll('.dash-link');
-    document.querySelectorAll('.dash-link').forEach(d=>d.classList.remove('active'));
-    if(links[map[name]]) links[map[name]].classList.add('active');
-  }
- 
-  // ---------------- onboarding flow ----------------
-  function obStep(n){
-    document.querySelectorAll('.onboard-step').forEach(s=>s.style.display='none');
-    document.getElementById('ob-step-'+n).style.display='block';
-    window.scrollTo(0,0);
-  }
-  function finishOnboard(){
-    document.querySelectorAll('.onboard-step').forEach(s=>s.style.display='none');
-    document.getElementById('ob-step-success').style.display='block';
-    window.scrollTo(0,0);
-  }
-  function selectPlan(el){
-    document.querySelectorAll('.plan-card').forEach(p=>p.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-  document.querySelectorAll('.tag-option').forEach(t=>{
-    t.addEventListener('click', ()=>t.classList.toggle('selected'));
-  });
- 
-  // ---------------- modals ----------------
-  function openModal(id){ document.getElementById(id+'-overlay').classList.add('active'); }
-  function closeModal(id){ document.getElementById(id+'-overlay').classList.remove('active'); }
- 
-  // ---------------- directory data ----------------
-  const healers = [
-    {name:"Gogo Nomvula Mahlangu", initials:"NM", region:"Soweto, Gauteng", tags:["Sangoma","Divination"], rating:4.9, since:2003},
-    {name:"Baba Themba Cele", initials:"TC", region:"Durban, KZN", tags:["Inyanga","Herbalist"], rating:4.8, since:1998},
-    {name:"Gogo Ntombi Dlamini", initials:"ND", region:"Mthatha, Eastern Cape", tags:["Birth Attendant"], rating:5.0, since:2010},
-    {name:"Baba Sipho Ngwenya", initials:"SN", region:"Polokwane, Limpopo", tags:["Bone Setting"], rating:4.7, since:2006},
-    {name:"Gogo Precious Khumalo", initials:"PK", region:"Soshanguve, Gauteng", tags:["Spiritual Cleansing","Sangoma"], rating:4.9, since:2014},
-    {name:"Baba Mandla Zulu", initials:"MZ", region:"Pietermaritzburg, KZN", tags:["Inyanga","Herbalist"], rating:4.8, since:2001},
-    {name:"Gogo Lindiwe Mokoena", initials:"LM", region:"Mahikeng, North West", tags:["Divination","Marriage Counselling"], rating:4.6, since:2009},
-    {name:"Baba Vusi Mahlobo", initials:"VM", region:"Nelspruit, Mpumalanga", tags:["Bone Setting","Herbalist"], rating:4.9, since:1995},
-    {name:"Gogo Zanele Buthelezi", initials:"ZB", region:"Kimberley, Northern Cape", tags:["Sangoma","Spiritual Cleansing"], rating:5.0, since:2012},
-  ];
- 
-  const grid = document.getElementById('directory-grid');
-  healers.forEach(h=>{
+  const grid = document.getElementById('healer-grid');
+  const noResults = document.getElementById('no-results');
+  const countEl = document.getElementById('result-count');
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (countEl) countEl.textContent = list.length ? `${list.length} healer${list.length !== 1 ? 's' : ''} found` : '0 healers found';
+  if (!list.length) { noResults && noResults.classList.remove('hidden'); return; }
+  noResults && noResults.classList.add('hidden');
+  list.forEach(h => {
     const card = document.createElement('div');
     card.className = 'healer-card';
-    card.onclick = ()=>goTo('profile');
+    card.onclick = () => { state.currentHealer = h; state.currentProfileTab = 'overview'; navigate('profile'); };
     card.innerHTML = `
-      <div class="healer-photo">
-        <div class="initials">${h.initials}</div>
-        <div class="verified-badge">✓ Verified</div>
+      <div class="hc-banner" style="background:${h.color}">
+        <div class="hc-avatar">${h.initials}</div>
+        <div class="hc-badge-pos">${h.verified ? '<span class="badge badge-verified">✓ Verified</span>' : ''}</div>
       </div>
-      <div class="healer-info">
-        <h3>${h.name}</h3>
-        <div class="healer-region">📍 ${h.region}</div>
-        <div class="specialty-tags">${h.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-        <div class="healer-meta">
-          <div class="rating">★ ${h.rating}</div>
-          <div class="since">Since ${h.since}</div>
+      <div class="hc-body">
+        <h3 class="hc-name">${h.title} ${h.name}</h3>
+        <div class="hc-region">📍 ${h.town}, ${h.province}</div>
+        <div class="hc-tags">${h.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        <div class="hc-foot">
+          <div class="rating"><span class="star">★</span> ${h.rating} <span style="color:var(--soft);font-weight:400;font-size:12px">(${h.reviews})</span></div>
+          <div class="hc-since">Since ${h.since}</div>
         </div>
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
- 
-  // ---------------- marketplace data ----------------
-  const products = [
-    {name:"Imphepho bundle, dried", cat:"Herbs & Muthi", price:85},
-    {name:"Beaded isiphandla, full set", cat:"Beadwork Supplies", price:320},
-    {name:"Goat skin, tanned", cat:"Skins & Regalia", price:480},
-    {name:"Bone throwing set, traditional", cat:"Divination Tools", price:650},
-    {name:"Umsamo cleansing oil, 100ml", cat:"Ritual Items", price:145},
-    {name:"Isidwaba ceremonial skirt", cat:"Skins & Regalia", price:890},
-    {name:"Impepho & camphor incense pack", cat:"Ritual Items", price:60},
-    {name:"Brass divination bowl", cat:"Divination Tools", price:410},
-    {name:"Mixed bead strand pack, 10 colours", cat:"Beadwork Supplies", price:95},
-    {name:"Dried buchu & wormwood pack", cat:"Herbs & Muthi", price:70},
-    {name:"Cowhide drum, hand-stretched", cat:"Skins & Regalia", price:1240},
-    {name:"Carved walking staff", cat:"Ritual Items", price:380},
-  ];
- 
-  const mpGrid = document.getElementById('marketplace-grid');
-  products.forEach(p=>{
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.innerHTML = `
-      <div class="pimg-lg"><span class="admin-tag">Sold by Umsizi</span></div>
-      <div class="pinfo-lg">
-        <div class="pname-lg">${p.name}</div>
-        <div class="pcat">${p.cat}</div>
-        <div class="pfoot">
-          <div class="pprice-lg">R${p.price}</div>
-          <button class="add-btn">+</button>
+}
+
+function filterDirectory() { renderDirectory(); }
+
+function clearFilters() {
+  const si = document.getElementById('search-input'); if (si) si.value = '';
+  const pf = document.getElementById('province-filter'); if (pf) pf.value = '';
+  state.filterSpec = '';
+  document.querySelectorAll('#specialty-chips .chip').forEach(c => c.classList.remove('active'));
+  const allChip = document.querySelector('#specialty-chips .chip[data-spec=""]');
+  if (allChip) allChip.classList.add('active');
+  renderDirectory();
+}
+
+function setSpecialty(el) {
+  document.querySelectorAll('#specialty-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.filterSpec = el.dataset.spec;
+  renderDirectory();
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+function renderProfile() {
+  const h = state.currentHealer;
+  if (!h) return;
+  document.getElementById('p-avatar').textContent = h.initials;
+  document.getElementById('p-name').textContent = `${h.title} ${h.name}`;
+  const heroEl = document.querySelector('.profile-hero');
+  if (heroEl && h.photo) {
+    heroEl.style.backgroundImage = `linear-gradient(140deg,rgba(74,99,53,.85) 0%,rgba(26,16,8,.92) 100%),url('${h.photo}')`;
+    heroEl.style.backgroundSize = 'cover';
+    heroEl.style.backgroundPosition = 'center top';
+  }
+  document.getElementById('p-details').innerHTML = `
+    <span>📍 ${h.town}, ${h.province}</span>
+    <span>Practicing since ${h.since}</span>
+    ${h.verified ? '<span class="badge badge-verified">✓ Verified</span>' : ''}
+    <span class="rating"><span class="star">★</span> ${h.rating} (${h.reviews} reviews)</span>`;
+  document.querySelectorAll('.ptab').forEach(t => t.classList.toggle('active', t.dataset.ptab === state.currentProfileTab));
+  renderProfileContent();
+}
+
+function switchProfileTab(el) {
+  state.currentProfileTab = el.dataset.ptab;
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderProfileContent();
+}
+
+function renderProfileContent() {
+  const h = state.currentHealer;
+  const tab = state.currentProfileTab;
+  const content = document.getElementById('profile-content');
+  const sidebar = document.getElementById('profile-sidebar');
+  if (!content || !sidebar) return;
+
+  sidebar.innerHTML = `
+    <div class="book-cta-card">
+      <h4>Book a consultation</h4>
+      <p>${h.title} ${h.name.split(' ')[0]} usually replies within 2–3 hours. No payment needed to make a request.</p>
+      <button class="btn btn-primary btn-block" onclick="openModal('book-modal')">Request a booking</button>
+    </div>
+    <div class="pcard">
+      <h3>Practice details</h3>
+      <ul class="info-dl">
+        <li><span class="k">Languages</span><span class="v">${h.langs}</span></li>
+        <li><span class="k">Years practicing</span><span class="v">${h.years}</span></li>
+        <li><span class="k">House calls</span><span class="v">${h.houseCalls ? 'Yes, local area' : 'Consulting rooms only'}</span></li>
+        <li><span class="k">Registered with</span><span class="v">${h.registered}</span></li>
+      </ul>
+    </div>`;
+
+  const svcHtml = () => state.healerServices.map(s => `
+    <div class="svc-row">
+      <div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-desc">${s.desc} · ${s.dur}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+        <div class="svc-price">R${s.price}</div>
+        ${tab === 'services' ? `<button class="btn btn-primary btn-sm" onclick="openModal('book-modal')">Book</button>` : ''}
+      </div>
+    </div>`).join('');
+
+  if (tab === 'overview') {
+    content.innerHTML = `
+      <div class="pcard">
+        <h3>About ${h.title} ${h.name.split(' ')[0]}</h3>
+        <p style="font-size:14.5px;line-height:1.7;color:var(--soft)">${h.bio}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">${h.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="pcard"><h3>Services</h3>${svcHtml()}</div>
+      <div class="pcard">
+        <h3>Products from this healer's store</h3>
+        <div class="store-mini">
+          ${state.healerProducts.map(p => `
+            <div class="smi-card">
+              <div class="smi-img">${p.icon}</div>
+              <div class="smi-info">
+                <div class="smi-name">${p.name}</div>
+                <div class="smi-price">R${p.price}</div>
+                <button class="btn btn-outline btn-xs w100" style="margin-top:8px" onclick="addToCart({id:${p.id},name:'${p.name.replace(/'/g,"\\''")}',price:${p.price},icon:'${p.icon}'})">Add to basket</button>
+              </div>
+            </div>`).join('')}
         </div>
       </div>
-    `;
-    mpGrid.appendChild(card);
+      <div class="pcard">
+        <h3>Client reviews (${h.reviews} total)</h3>
+        <div class="review-item"><div class="review-head"><span class="reviewer">Thandeka N.</span><span class="review-stars">★★★★★</span></div><p class="review-text">Explained everything clearly before the ritual and made my mother feel at ease. Worth the trip from Pretoria.</p><div class="review-date">2 weeks ago</div></div>
+        <div class="review-item"><div class="review-head"><span class="reviewer">Sipho M.</span><span class="review-stars">★★★★★</span></div><p class="review-text">Booked through the site, got confirmation within an hour. Very professional setup.</p><div class="review-date">3 weeks ago</div></div>
+      </div>`;
+  } else if (tab === 'services') {
+    content.innerHTML = `<div class="pcard"><h3>All services</h3>${svcHtml()}</div>`;
+  } else if (tab === 'store') {
+    content.innerHTML = `
+      <div class="pcard">
+        <h3>Products from this healer's store</h3>
+        <div class="store-mini">
+          ${state.healerProducts.map(p => `
+            <div class="smi-card">
+              <div class="smi-img">${p.icon}</div>
+              <div class="smi-info">
+                <div class="smi-name">${p.name}</div>
+                <div class="smi-price">R${p.price}</div>
+                <button class="btn btn-outline btn-xs w100" style="margin-top:8px" onclick="addToCart({id:${p.id},name:'${p.name.replace(/'/g,"\\''")}',price:${p.price},icon:'${p.icon}'})">Add to basket</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  } else if (tab === 'reviews') {
+    content.innerHTML = `
+      <div class="pcard">
+        <h3>Client reviews</h3>
+        <div style="display:flex;align-items:center;gap:20px;padding:16px 0;border-bottom:1px solid var(--line2);margin-bottom:4px">
+          <div style="font-family:'Fraunces',serif;font-size:52px;font-weight:600;color:var(--soil);line-height:1">${h.rating}</div>
+          <div><div style="color:var(--grass);font-size:24px;letter-spacing:2px">★★★★★</div><div style="font-size:13px;color:var(--soft);margin-top:4px">Based on ${h.reviews} reviews</div></div>
+        </div>
+        <div class="review-item"><div class="review-head"><span class="reviewer">Thandeka N.</span><span class="review-stars">★★★★★</span></div><p class="review-text">Explained everything clearly before the ritual and made my mother feel completely at ease.</p><div class="review-date">2 weeks ago</div></div>
+        <div class="review-item"><div class="review-head"><span class="reviewer">Sipho M.</span><span class="review-stars">★★★★★</span></div><p class="review-text">Booked through the site, got confirmation within an hour. Professional and punctual.</p><div class="review-date">3 weeks ago</div></div>
+        <div class="review-item"><div class="review-head"><span class="reviewer">Lerato K.</span><span class="review-stars">★★★★★</span></div><p class="review-text">She took time to explain the cleansing ritual and followed up the next day. Highly recommend.</p><div class="review-date">1 month ago</div></div>
+      </div>`;
+  }
+}
+
+// ============================================================
+// MARKETPLACE
+// ============================================================
+function syncMobileCats() {
+  const isMobile = window.innerWidth <= 1024;
+  const el = document.getElementById('mp-mobile-cats');
+  if (el) el.style.display = isMobile ? 'flex' : 'none';
+}
+window.addEventListener('resize', syncMobileCats);
+
+function mpCatChip(el, cat) {
+  document.querySelectorAll('#mp-mobile-cats .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (!cat) {
+    state.mpActiveCats = new Set(['Herbs & Muthi','Beadwork','Skins & Regalia','Divination Tools','Ritual Items']);
+  } else {
+    state.mpActiveCats = new Set([cat]);
+    // sync sidebar checkboxes
+    document.querySelectorAll('[data-mpcat]').forEach(cb => { cb.checked = cb.dataset.mpcat === cat; });
+  }
+  renderMarketplace();
+}
+
+function mpFilterCat(cat) {
+  state.mpActiveCats = new Set([cat]);
+  document.querySelectorAll('[data-mpcat]').forEach(cb => { cb.checked = cb.dataset.mpcat === cat; });
+  renderMarketplace();
+}
+
+function mpSidebarFilter() {
+  const checks = document.querySelectorAll('[data-mpcat]');
+  const active = new Set();
+  checks.forEach(c => { if (c.checked) active.add(c.dataset.mpcat); });
+  state.mpActiveCats = active;
+  const minEl = document.getElementById('price-min');
+  const maxEl = document.getElementById('price-max');
+  state.mpPriceMin = minEl && minEl.value ? Number(minEl.value) : null;
+  state.mpPriceMax = maxEl && maxEl.value ? Number(maxEl.value) : null;
+  const stockEl = document.getElementById('in-stock-only');
+  state.mpInStockOnly = stockEl ? stockEl.checked : true;
+  renderMarketplace();
+}
+
+function mpReset() {
+  state.mpActiveCats = new Set(['Herbs & Muthi','Beadwork','Skins & Regalia','Divination Tools','Ritual Items']);
+  state.mpPriceMin = null; state.mpPriceMax = null; state.mpInStockOnly = false;
+  document.querySelectorAll('[data-mpcat]').forEach(c => c.checked = true);
+  const minEl = document.getElementById('price-min'); if (minEl) minEl.value = '';
+  const maxEl = document.getElementById('price-max'); if (maxEl) maxEl.value = '';
+  const stockEl = document.getElementById('in-stock-only'); if (stockEl) stockEl.checked = false;
+  document.querySelectorAll('#mp-mobile-cats .chip').forEach(c => c.classList.remove('active'));
+  const allChip = document.querySelector('#mp-mobile-cats .chip[data-mpcat=""]');
+  if (allChip) allChip.classList.add('active');
+  renderMarketplace();
+}
+
+function renderMarketplace() {
+  let list = products.filter(p => {
+    if (!state.mpActiveCats.has(p.cat)) return false;
+    if (state.mpPriceMin !== null && p.price < state.mpPriceMin) return false;
+    if (state.mpPriceMax !== null && p.price > state.mpPriceMax) return false;
+    if (state.mpInStockOnly && !p.inStock) return false;
+    return true;
   });
- 
-  // close modal on background click
-  document.querySelectorAll('.modal-overlay').forEach(ov=>{
-    ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.classList.remove('active'); });
+  const sort = document.getElementById('mp-sort')?.value || 'default';
+  if (sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+  else if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
+  else if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+
+  const grid = document.getElementById('product-grid');
+  const empty = document.getElementById('mp-empty');
+  const count = document.getElementById('mp-count');
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (count) count.textContent = list.length ? `${list.length} product${list.length !== 1 ? 's' : ''} · Fulfilled by Umsizi` : '0 products';
+  if (!list.length) { empty?.classList.remove('hidden'); return; }
+  empty?.classList.add('hidden');
+
+  list.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    const safeName = p.name.replace(/'/g, "\\'");
+    card.innerHTML = `
+      <div class="pc-img" style="background-image:url('${p.photo}');background-size:cover;background-position:center;"><span class="pc-seller-tag">Sold by Umsizi</span></div>
+      <div class="pc-body">
+        <div class="pc-cat">${p.cat}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-desc">${p.desc}</div>
+        <div class="pc-foot">
+          <div class="pc-price">R${p.price}</div>
+          <button class="add-to-cart" onclick="addToCart({id:${p.id},name:'${safeName}',price:${p.price},icon:'${p.icon}',photo:'${p.photo}'})" title="Add to basket">+</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
   });
+}
+
+// ============================================================
+// CART
+// ============================================================
+function addToCart(item) {
+  const existing = state.cart.find(c => c.id === item.id);
+  if (existing) { existing.qty++; }
+  else { state.cart.push({ ...item, qty: 1 }); }
+  updateCartCount();
+  renderCartItems();
+  toast(`${item.name} added to basket`, 'success');
+}
+
+function updateCartCount() {
+  const total = state.cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cart-count').textContent = total;
+}
+
+function renderCartItems() {
+  const el = document.getElementById('cart-items-el');
+  const foot = document.getElementById('cart-foot');
+  if (!el) return;
+  if (!state.cart.length) {
+    el.innerHTML = `<div class="cart-empty"><div class="ce-icon">🛒</div><p>Your basket is empty.<br>Browse the marketplace for supplies.</p></div>`;
+    if (foot) foot.style.display = 'none';
+    return;
+  }
+  if (foot) foot.style.display = 'block';
+  el.innerHTML = state.cart.map(item => `
+    <div class="cart-item">
+      <div class="ci-img" style="background:${item.photo?'url('+item.photo+') center/cover no-repeat var(--bone)':'var(--bone)'};">${item.photo?"":item.icon}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">R${item.price}</div>
+        <div class="ci-qty">
+          <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <span class="ci-remove" onclick="removeFromCart(${item.id})">✕</span>
+    </div>`).join('');
+  const total = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const totalEl = document.getElementById('cart-total-el');
+  if (totalEl) totalEl.textContent = `R${total}`;
+}
+
+function changeQty(id, delta) {
+  const item = state.cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(id);
+  else { updateCartCount(); renderCartItems(); }
+}
+
+function removeFromCart(id) {
+  state.cart = state.cart.filter(c => c.id !== id);
+  updateCartCount();
+  renderCartItems();
+}
+
+function openCart() {
+  renderCartItems();
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function checkout() {
+  if (!state.cart.length) return;
+  const total = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
+  closeCart();
+  toast(`Checkout initiated — R${total} total. Connect Peach Payments or PayFast here.`, 'info');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  renderDashListings();
+  renderStore();
+  renderServicesList();
+  renderBookings();
+  initTagPickers();
+}
+
+function dashNav(el) {
+  const sec = el.dataset.dsec;
+  document.querySelectorAll('.ds-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('dsec-' + sec);
+  if (target) { target.classList.add('active'); }
+  else { document.getElementById('dsec-overview').classList.add('active'); }
+}
+
+function renderDashListings() {
+  const el = document.getElementById('dash-listings');
+  if (!el) return;
+  el.innerHTML = state.healerProducts.map(p => `
+    <div class="listing-item">
+      <div class="li-thumb">${p.icon}</div>
+      <div>
+        <div class="li-name">${p.name}</div>
+        <div class="li-meta">R${p.price} · ${p.stock} in stock</div>
+      </div>
+      <div class="li-actions">
+        <button class="btn-icon" onclick="toast('Edit product — connect to your DB','info')" title="Edit">✎</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderStore() {
+  const el = document.getElementById('store-grid');
+  if (!el) return;
+  el.innerHTML = state.healerProducts.map(p => `
+    <div class="sp-card">
+      <div class="sp-img">${p.icon}</div>
+      <div class="sp-body">
+        <div class="sp-name">${p.name}</div>
+        <div class="sp-meta">${p.cat} · R${p.price}</div>
+        <div class="sp-foot">
+          <span class="badge ${p.stock > 0 ? 'badge-verified' : 'badge-danger'}">${p.stock > 0 ? p.stock + ' in stock' : 'Out of stock'}</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-icon" onclick="toast('Edit — connect to DB','info')" title="Edit">✎</button>
+            <button class="btn-icon" style="color:var(--danger)" onclick="deleteProduct(${p.id})" title="Delete">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderServicesList() {
+  const el = document.getElementById('services-list');
+  if (!el) return;
+  el.innerHTML = state.healerServices.map(s => `
+    <div class="svc-row">
+      <div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-desc">${s.desc} · ${s.dur}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <div class="svc-price">R${s.price}</div>
+        <button class="btn-icon" onclick="toast('Edit service — connect to DB','info')" title="Edit">✎</button>
+        <button class="btn-icon" style="color:var(--danger)" onclick="deleteService(${s.id})" title="Delete">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderBookings() {
+  const el = document.getElementById('bookings-list');
+  if (!el) return;
+  const statusMap = { confirmed:'badge-verified', pending:'badge-pending', reschedule:'badge-danger' };
+  const labelMap = { confirmed:'Confirmed', pending:'Awaiting reply', reschedule:'Reschedule needed' };
+  el.innerHTML = state.bookings.map(b => `
+    <div class="booking-grid">
+      <span style="font-weight:600">${b.client}</span>
+      <span>${b.service}</span>
+      <span class="hide-mobile">${b.date}</span>
+      <span class="hide-mobile"><a href="tel:${b.phone}" style="color:var(--ochre-h)">${b.phone}</a></span>
+      <span><span class="status-pill ${statusMap[b.status]}">${labelMap[b.status]}</span></span>
+    </div>`).join('');
+}
+
+function deleteProduct(id) {
+  state.healerProducts = state.healerProducts.filter(p => p.id !== id);
+  renderStore(); renderDashListings();
+  toast('Product removed', 'info');
+}
+
+function deleteService(id) {
+  state.healerServices = state.healerServices.filter(s => s.id !== id);
+  renderServicesList();
+  toast('Service removed', 'info');
+}
+
+function addProduct() {
+  const name = document.getElementById('mp-name').value.trim();
+  const price = Number(document.getElementById('mp-price').value);
+  const stock = Number(document.getElementById('mp-stock').value) || 0;
+  const cat = document.getElementById('mp-cat').value;
+  if (!name) { toast('Product name is required', 'error'); return; }
+  if (!price || price <= 0) { toast('Please enter a valid price', 'error'); return; }
+  const icons = {'Herbs & Muthi':'🌿','Beadwork':'📿','Ritual Items':'🪔','Skins & Regalia':'🦓','Divination Tools':'🦴','Other':'📦'};
+  state.healerProducts.push({ id: state.nextProductId++, name, price, stock, cat, icon: icons[cat] || '📦' });
+  closeModal('add-product-modal');
+  ['mp-name','mp-price','mp-stock','mp-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  renderStore(); renderDashListings();
+  toast(`"${name}" added to your store`, 'success');
+}
+
+function addService() {
+  const name = document.getElementById('svc-name').value.trim();
+  const price = Number(document.getElementById('svc-price').value);
+  const dur = document.getElementById('svc-dur').value.trim();
+  const desc = document.getElementById('svc-desc').value.trim();
+  if (!name) { toast('Service name is required', 'error'); return; }
+  if (!price || price <= 0) { toast('Please enter a valid price', 'error'); return; }
+  state.healerServices.push({ id: state.nextServiceId++, name, price, dur: dur || 'By arrangement', desc: desc || '' });
+  closeModal('add-service-modal');
+  ['svc-name','svc-price','svc-dur','svc-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  renderServicesList();
+  toast(`"${name}" added to your services`, 'success');
+}
+
+function saveProfile() {
+  const fname = document.getElementById('pe-fname')?.value;
+  const lname = document.getElementById('pe-lname')?.value;
+  if (fname) {
+    const dsName = document.getElementById('ds-store-name');
+    if (dsName) dsName.textContent = `${fname}'s Practice`;
+  }
+  toast('Profile changes saved', 'success');
+}
+
+// ============================================================
+// ONBOARDING
+// ============================================================
+function obNext(step) {
+  if (step === 1) {
+    const fname = document.getElementById('ob-fname')?.value.trim();
+    const lname = document.getElementById('ob-lname')?.value.trim();
+    const email = document.getElementById('ob-email')?.value.trim();
+    const phone = document.getElementById('ob-phone')?.value.trim();
+    const province = document.getElementById('ob-province')?.value;
+    const agree = document.getElementById('ob-agree')?.checked;
+    if (!fname || !lname) { toast('Please enter your full name', 'error'); return; }
+    if (!email || !email.includes('@')) { toast('Please enter a valid email address', 'error'); return; }
+    if (!phone) { toast('Please enter your phone number', 'error'); return; }
+    if (!province) { toast('Please select your province', 'error'); return; }
+    if (!agree) { toast('Please agree to the Terms of Service to continue', 'error'); return; }
+  }
+  if (step === 2) {
+    const bio = document.getElementById('ob-bio')?.value.trim();
+    const ref = document.getElementById('ob-ref')?.value.trim();
+    if (!bio) { toast('Please tell clients about your practice', 'error'); return; }
+    if (!ref) { toast('Please provide a verification reference', 'error'); return; }
+  }
+  document.getElementById('ob-' + step)?.classList.add('hidden');
+  document.getElementById('ob-' + (step + 1))?.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function obBack(step) {
+  document.getElementById('ob-' + (step + 1))?.classList.add('hidden');
+  document.getElementById('ob-' + step)?.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function obSubmit() {
+  const card = document.getElementById('ob-card')?.value.replace(/\s/g, '');
+  const expiry = document.getElementById('ob-expiry')?.value.trim();
+  const cvc = document.getElementById('ob-cvc')?.value.trim();
+  const name = document.getElementById('ob-cardname')?.value.trim();
+  if (!card || card.length < 14) { toast('Please enter a valid card number', 'error'); return; }
+  if (!expiry) { toast('Please enter your card expiry', 'error'); return; }
+  if (!cvc || cvc.length < 3) { toast('Please enter your CVC', 'error'); return; }
+  if (!name) { toast('Please enter the name on your card', 'error'); return; }
+  const btn = document.getElementById('ob-submit-btn');
+  if (btn) { btn.textContent = 'Submitting…'; btn.disabled = true; }
+  setTimeout(() => {
+    if (btn) { btn.textContent = 'Submit for verification'; btn.disabled = false; }
+    document.getElementById('ob-4')?.classList.add('hidden');
+    document.getElementById('ob-success')?.classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }, 1600);
+}
+
+function selectPlan(el) {
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedPlan = el.dataset.plan;
+}
+
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 16);
+  el.value = v.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function fmtExpiry(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 3) v = v.substring(0, 2) + ' / ' + v.substring(2);
+  el.value = v;
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+function doLogin() {
+  const email = document.getElementById('login-email')?.value.trim();
+  const pw = document.getElementById('login-pw')?.value;
+  if (!email || !email.includes('@')) { toast('Please enter a valid email address', 'error'); return; }
+  if (!pw) { toast('Please enter your password', 'error'); return; }
+  const btn = document.getElementById('login-btn');
+  if (btn) { btn.textContent = 'Logging in…'; btn.disabled = true; }
+  setTimeout(() => {
+    if (btn) { btn.textContent = 'Log in'; btn.disabled = false; }
+    navigate('dashboard');
+    toast('Welcome back, Gogo Nomvula', 'success');
+  }, 1200);
+}
+
+// ============================================================
+// BILLING
+// ============================================================
+function confirmPause() { openModal('confirm-pause-modal'); }
+function confirmCancel() { openModal('confirm-cancel-modal'); }
+function doPause() { closeModal('confirm-pause-modal'); toast('Listing paused. Resume anytime from Billing.', 'info'); }
+function doCancel() { closeModal('confirm-cancel-modal'); toast('Subscription cancelled. Active until 14 July 2026.', 'info'); }
+
+// ============================================================
+// BOOKING FORM
+// ============================================================
+function submitBooking() {
+  const name = document.getElementById('bk-name')?.value.trim();
+  const phone = document.getElementById('bk-phone')?.value.trim();
+  if (!name) { toast('Please enter your name', 'error'); return; }
+  if (!phone) { toast('Please enter your phone number', 'error'); return; }
+  const btn = document.getElementById('bk-submit');
+  if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
+  setTimeout(() => {
+    if (btn) { btn.textContent = 'Send booking request'; btn.disabled = false; }
+    closeModal('book-modal');
+    toast('Booking request sent! The healer will contact you shortly.', 'success');
+    ['bk-name','bk-phone','bk-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  }, 1200);
+}
+
+// ============================================================
+// TAG PICKERS
+// ============================================================
+function initTagPickers() {
+  document.querySelectorAll('.tag-pick').forEach(t => {
+    if (!t.dataset.listenerSet) {
+      t.addEventListener('click', () => t.classList.toggle('active'));
+      t.dataset.listenerSet = '1';
+    }
+  });
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('open'); document.body.style.overflow = 'hidden'; }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('open'); document.body.style.overflow = ''; }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="t-icon">${icons[type] || 'ℹ'}</span>${msg}`;
+  container.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderDirectory();
+  renderMarketplace();
+  renderCartItems();
+  initTagPickers();
+  syncMobileCats();
+
+  // close modals on backdrop click
+  document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => {
+      if (e.target === bg) { bg.classList.remove('open'); document.body.style.overflow = ''; }
+    });
+  });
+
+  // close cart on overlay click
+  document.getElementById('cart-overlay')?.addEventListener('click', closeCart);
+});
 </script>
- 
 </body>
 </html>
